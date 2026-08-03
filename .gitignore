@@ -1,0 +1,11 @@
+# RCS reference material — kept on disk for Claude Code / agents to read,
+# not pushed to the repo (Postman collection, API docs, source blueprint).
+/Project/
+
+# Hosting placeholder, not part of this project.
+/index.php
+
+# Local Claude Code skill tooling state (regenerable via /plugin).
+/.claude/
+/.agents/
+/skills-lock.json
