@@ -54,11 +54,13 @@ build on top of:
   rate-card dimension (confirmed: a carrier-agent is approved/rejected
   once per carrier, not once per OS).
 - **RateCard** — scoped to **carrier**, not per-agent: `id`, `carrier`,
-  `os` (`ios`/`android`), `message_type` (`text`/`rich_card`/`session`),
-  `direction` (`a2p`/`p2a`), `price`, `effective_from`, `version`. One
-  published rate card per carrier applies to every agent live on that
-  carrier. A message always bills against whichever version was in
-  effect when it was sent — versions are never mutated after the fact.
+  `os` (`ios`/`android`), `message_type` (`text`/`richcard`/`conversation`),
+  `direction` (`a2p`/`p2a`), `price`, `effective_from`, `version`. Rich
+  cards and carousels are billed under the same `richcard` line item —
+  there is no separate carousel rate. One published rate card per
+  carrier applies to every agent live on that carrier. A message always
+  bills against whichever version was in effect when it was sent —
+  versions are never mutated after the fact.
 
 ### Agent lifecycle (per `CarrierAgent`)
 
