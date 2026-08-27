@@ -1,8 +1,9 @@
 # RCS SaaS Platform — Working Notes
 
-This repo currently holds the documentation vault for a multi-tenant RCS
-SaaS platform (`docs/`, an Obsidian vault). No application code exists
-yet — a React starter template will be added in a future session.
+This repo holds the documentation vault for a multi-tenant RCS SaaS
+platform (`docs/`, an Obsidian vault) alongside real application code:
+`backend/` (a Laravel API) and `frontend/` (a React SPA). See the
+"Running the app" section below for details.
 
 ## Reference material
 
@@ -23,7 +24,7 @@ remote.
 - **Writing or revising any document under `docs/`:** use
   `superpowers:brainstorming` to shape the content first, then
   `superpowers:writing-plans` if the resulting work is non-trivial.
-- **Future React frontend work** (once a starter template exists):
+- **React frontend work** (in `frontend/`):
   use `design-taste-frontend` or `ui-ux-pro-max`.
 - **Commits and PRs:** use `commit-commands`.
 - **Code review, once implementation starts:** use `code-review` or
