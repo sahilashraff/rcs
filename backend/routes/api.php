@@ -17,7 +17,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/features', [FeatureController::class, 'index']);
 
-    Route::middleware('can:access-feature:permissions')->get('/permissions/ping', [PingController::class, 'permissions']);
+    Route::middleware('can:access-feature,"permissions"')->get('/permissions/ping', [PingController::class, 'permissions']);
 
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);
