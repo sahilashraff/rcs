@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FeatureController;
+use App\Http\Controllers\Api\SubAccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,3 +12,13 @@ Route::middleware('auth:sanctum')->post('/sign-out', [AuthController::class, 'si
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/features', [FeatureController::class, 'index']);
+
+    Route::middleware('is-owner')->group(function () {
+        Route::get('/sub-accounts', [SubAccountController::class, 'index']);
+        Route::post('/sub-accounts', [SubAccountController::class, 'store']);
+        Route::put('/sub-accounts/{user}/permissions', [SubAccountController::class, 'updatePermissions']);
+    });
+});
