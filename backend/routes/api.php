@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FeatureController;
+use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\SubAccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,8 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/features', [FeatureController::class, 'index']);
+
+    Route::middleware('can:access-feature:permissions')->get('/permissions/ping', [PingController::class, 'permissions']);
 
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);
