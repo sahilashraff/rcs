@@ -6,6 +6,7 @@ const endpointConfig = {
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
+    currentUser: '/user',
 }
 
 export default endpointConfig

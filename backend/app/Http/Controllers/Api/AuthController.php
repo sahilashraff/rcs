@@ -30,13 +30,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => [
-                'userId' => (string) $user->id,
-                'userName' => $user->name,
-                'authority' => FeatureAccess::grantedKeys($user),
-                'avatar' => '',
-                'email' => $user->email,
-            ],
+            'user' => $this->userPayload($user),
         ]);
     }
 
@@ -45,5 +39,32 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Returns the current user's authority freshly computed from the
+     * database — the frontend calls this on app boot so a permission
+     * change an Owner makes takes effect without the affected user
+     * needing to sign out and back in. This is the same payload shape
+     * signIn() returns, built by the same helper below, so the two
+     * response bodies can never drift apart.
+     */
+    public function me(Request $request)
+    {
+        return response()->json(['user' => $this->userPayload($request->user())]);
+    }
+
+    /**
+     * @return array{userId: string, userName: string, authority: string[], avatar: string, email: string}
+     */
+    private function userPayload(User $user): array
+    {
+        return [
+            'userId' => (string) $user->id,
+            'userName' => $user->name,
+            'authority' => FeatureAccess::grantedKeys($user),
+            'avatar' => '',
+            'email' => $user->email,
+        ];
     }
 }

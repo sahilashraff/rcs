@@ -7,6 +7,7 @@ import type {
     ResetPassword,
     SignInResponse,
     SignUpResponse,
+    CurrentUserResponse,
 } from '@/@types/auth'
 
 export async function apiSignIn(data: SignInCredential) {
@@ -29,6 +30,17 @@ export async function apiSignOut() {
     return ApiService.fetchDataWithAxios({
         url: endpointConfig.signOut,
         method: 'post',
+    })
+}
+
+// Refetches the signed-in user's authority live from the backend — the
+// single source of truth for what they can access. Called on app boot so
+// a permission an Owner just granted or revoked takes effect immediately,
+// instead of waiting for the next sign-in to refresh the cached copy.
+export async function apiGetCurrentUser() {
+    return ApiService.fetchDataWithAxios<CurrentUserResponse>({
+        url: endpointConfig.currentUser,
+        method: 'get',
     })
 }
 

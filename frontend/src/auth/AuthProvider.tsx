@@ -1,8 +1,13 @@
-import { useRef, useImperativeHandle, useState } from 'react'
+import { useEffect, useRef, useImperativeHandle, useState } from 'react'
 import AuthContext from './AuthContext'
 import appConfig from '@/configs/app.config'
 import { useSessionUser, useToken } from '@/store/authStore'
-import { apiSignIn, apiSignOut, apiSignUp } from '@/services/AuthService'
+import {
+    apiSignIn,
+    apiSignOut,
+    apiSignUp,
+    apiGetCurrentUser,
+} from '@/services/AuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useNavigate } from 'react-router'
 import type {
@@ -47,6 +52,28 @@ function AuthProvider({ children }: AuthProviderProps) {
     const authenticated = Boolean(tokenState && signedIn)
 
     const navigatorRef = useRef<IsolatedNavigatorRef>(null)
+
+    // Backend is the single source of truth for what this user can
+    // access. `user.authority` is persisted to localStorage and only
+    // ever set at sign-in — without this, an Owner granting or revoking
+    // a permission has no effect on an already-open session until the
+    // affected user manually signs out and back in. Refetch it live once
+    // on app boot so a persisted session always reflects current access.
+    useEffect(() => {
+        if (!tokenState) return
+
+        apiGetCurrentUser()
+            .then((resp) => setUser(resp.user))
+            .catch(() => {
+                // A 401/419/440 here already clears the session via
+                // AxiosResponseIntrceptorErrorCallback; any other error
+                // (e.g. offline) just leaves the cached authority as-is.
+            })
+        // Intentionally runs once on mount only — re-running on every
+        // tokenState change would re-fetch immediately after sign-in,
+        // duplicating the fresh data signIn()/signUp() already received.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const redirect = () => {
         const search = window.location.search
