@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\FeatureAccess;
 
 class FeatureController extends Controller
 {
     public function index()
     {
-        $grantable = array_values(array_filter(config('features'), fn ($f) => ! $f['public']));
-
-        return response()->json(['data' => $grantable]);
+        return response()->json(['data' => FeatureAccess::grantable()]);
     }
 }

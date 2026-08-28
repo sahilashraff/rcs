@@ -1,4 +1,5 @@
 import { NAV_ITEM_TYPE_ITEM } from '@/constants/navigation.constant'
+import { FEATURE_PERMISSIONS } from '@/constants/feature.constant'
 import type { NavigationTree } from '@/@types/navigation'
 
 const navigationConfig: NavigationTree[] = [
@@ -13,13 +14,13 @@ const navigationConfig: NavigationTree[] = [
         subMenu: [],
     },
     {
-        key: 'permissions',
+        key: FEATURE_PERMISSIONS,
         path: '/permissions',
         title: 'Team',
         translateKey: 'nav.permissions',
         icon: 'singleMenu',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: ['permissions'],
+        authority: [FEATURE_PERMISSIONS],
         subMenu: [],
     },
 ]

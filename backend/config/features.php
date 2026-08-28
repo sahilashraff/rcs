@@ -14,5 +14,6 @@ return [
         'route' => '/permissions',
         'sidebar' => true,
         'public' => false,
+        'owner_only' => true,
     ],
 ];

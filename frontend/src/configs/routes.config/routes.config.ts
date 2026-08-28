@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import authRoute from './authRoute'
 import othersRoute from './othersRoute'
+import { FEATURE_PERMISSIONS } from '@/constants/feature.constant'
 import type { Routes } from '@/@types/routes'
 
 export const publicRoutes: Routes = [...authRoute]
@@ -17,10 +18,10 @@ export const protectedRoutes: Routes = [
         },
     },
     {
-        key: 'permissions',
+        key: FEATURE_PERMISSIONS,
         path: '/permissions',
         component: lazy(() => import('@/views/Permissions')),
-        authority: ['permissions'],
+        authority: [FEATURE_PERMISSIONS],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
