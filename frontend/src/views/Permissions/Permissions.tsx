@@ -186,7 +186,6 @@ const Permissions = () => {
                 subAccountsCount={subAccounts.length}
                 featuresCount={features.length}
                 grantedCount={totalGrantedCount}
-                isLoading={isLoading}
             />
 
             {/* Action Bar with Search & Filters */}
@@ -204,7 +203,6 @@ const Permissions = () => {
             <SubAccountTable
                 subAccounts={filteredSubAccounts}
                 features={features}
-                isLoading={isLoading}
                 togglingUserId={togglingUserId}
                 onTogglePermission={handleTogglePermission}
                 onManageAccess={(account) => setSelectedSubAccount(account)}

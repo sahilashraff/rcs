@@ -1,5 +1,4 @@
 import Card from '@/components/ui/Card'
-import Skeleton from '@/components/ui/Skeleton'
 import Tag from '@/components/ui/Tag'
 import {
     TbUsers,
@@ -12,14 +11,12 @@ type PermissionsStatsProps = {
     subAccountsCount: number
     featuresCount: number
     grantedCount: number
-    isLoading: boolean
 }
 
 const PermissionsStats = ({
     subAccountsCount,
     featuresCount,
     grantedCount,
-    isLoading,
 }: PermissionsStatsProps) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -31,13 +28,9 @@ const PermissionsStats = ({
                             Total Staff Accounts
                         </span>
                         <div className="mt-2 flex items-center gap-2">
-                            {isLoading ? (
-                                <Skeleton width={60} height={32} />
-                            ) : (
-                                <h3 className="font-bold text-2xl heading-text leading-none">
-                                    {subAccountsCount}
-                                </h3>
-                            )}
+                            <h3 className="font-bold text-2xl heading-text leading-none">
+                                {subAccountsCount}
+                            </h3>
                             <Tag className="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs py-0.5 px-2 font-medium">
                                 Active Staff
                             </Tag>
@@ -60,13 +53,9 @@ const PermissionsStats = ({
                             Protected Modules
                         </span>
                         <div className="mt-2 flex items-center gap-2">
-                            {isLoading ? (
-                                <Skeleton width={60} height={32} />
-                            ) : (
-                                <h3 className="font-bold text-2xl heading-text leading-none">
-                                    {featuresCount}
-                                </h3>
-                            )}
+                            <h3 className="font-bold text-2xl heading-text leading-none">
+                                {featuresCount}
+                            </h3>
                             <Tag className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 text-xs py-0.5 px-2 font-medium">
                                 Registry
                             </Tag>
@@ -89,13 +78,9 @@ const PermissionsStats = ({
                             Active Grants
                         </span>
                         <div className="mt-2 flex items-center gap-2">
-                            {isLoading ? (
-                                <Skeleton width={60} height={32} />
-                            ) : (
-                                <h3 className="font-bold text-2xl heading-text leading-none">
-                                    {grantedCount}
-                                </h3>
-                            )}
+                            <h3 className="font-bold text-2xl heading-text leading-none">
+                                {grantedCount}
+                            </h3>
                             <Tag className="bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200 dark:border-violet-800 text-xs py-0.5 px-2 font-medium">
                                 Direct RBAC
                             </Tag>
