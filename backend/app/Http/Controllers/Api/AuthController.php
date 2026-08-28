@@ -55,7 +55,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @return array{userId: string, userName: string, authority: string[], avatar: string, email: string}
+     * @return array{userId: string, userName: string, authority: string[], avatar: string, email: string, isAdmin: bool}
      */
     private function userPayload(User $user): array
     {
@@ -65,6 +65,7 @@ class AuthController extends Controller
             'authority' => FeatureAccess::grantedKeys($user),
             'avatar' => '',
             'email' => $user->email,
+            'isAdmin' => (bool) $user->is_admin,
         ];
     }
 }

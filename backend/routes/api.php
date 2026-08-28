@@ -20,4 +20,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/sub-accounts', [SubAccountController::class, 'store']);
         Route::put('/sub-accounts/{user}/permissions', [SubAccountController::class, 'updatePermissions']);
     });
+
+    Route::middleware('is-admin')->get('/admin/ping', [PingController::class, 'admin']);
 });

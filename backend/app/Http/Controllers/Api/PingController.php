@@ -10,4 +10,9 @@ class PingController extends Controller
     {
         return response()->json(['message' => 'permissions module reachable']);
     }
+
+    public function admin()
+    {
+        return response()->json(['message' => 'admin module reachable']);
+    }
 }
