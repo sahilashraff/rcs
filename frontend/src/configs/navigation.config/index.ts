@@ -15,7 +15,7 @@ const navigationConfig: NavigationTree[] = [
     {
         key: 'permissions',
         path: '/permissions',
-        title: 'Sub-Accounts & Permissions',
+        title: 'Team',
         translateKey: 'nav.permissions',
         icon: 'singleMenu',
         type: NAV_ITEM_TYPE_ITEM,

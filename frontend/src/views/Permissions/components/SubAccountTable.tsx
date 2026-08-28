@@ -67,7 +67,7 @@ const SubAccountTable = ({
                                 icon={<TbUserPlus className="text-base" />}
                                 onClick={onOpenCreateDialog}
                             >
-                                Create First Sub-Account
+                                Add First Team Member
                             </Button>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ const SubAccountTable = ({
                                             {/* Role Column */}
                                             <td className="py-4 px-6 whitespace-nowrap">
                                                 <Tag className="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-xs font-semibold py-0.5 px-2.5">
-                                                    Sub-Account
+                                                    Team Member
                                                 </Tag>
                                             </td>
 

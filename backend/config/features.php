@@ -10,7 +10,7 @@ return [
     ],
     [
         'key' => 'permissions',
-        'label' => 'Sub-Accounts & Permissions',
+        'label' => 'Team',
         'route' => '/permissions',
         'sidebar' => true,
         'public' => false,

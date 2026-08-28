@@ -48,7 +48,7 @@ const PermissionsActionHeader = ({
                             <TbShield className="text-xl" />
                         </div>
                         <h3 className="font-bold text-xl heading-text">
-                            Staff & Sub-Accounts
+                            Team
                         </h3>
                     </div>
                     <p className="text-gray-500 text-sm mt-1">
@@ -71,7 +71,7 @@ const PermissionsActionHeader = ({
                         icon={<TbUserPlus className="text-lg" />}
                         onClick={onOpenCreateDialog}
                     >
-                        Add Sub-Account
+                        Add Team Member
                     </Button>
                 </div>
             </div>

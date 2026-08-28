@@ -73,7 +73,7 @@ const Permissions = () => {
         }
 
         toast.push(
-            <Notification type="success" title="Sub-Account Created">
+            <Notification type="success" title="Team Member Added">
                 Staff member <strong>{data.name}</strong> created with {data.permissions.length} module permissions.
             </Notification>,
             { placement: 'top-center' },

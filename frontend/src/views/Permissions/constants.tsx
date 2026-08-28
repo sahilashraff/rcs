@@ -16,7 +16,7 @@ export const FEATURE_METADATA: Record<
     { label: string; description: string; icon: ReactNode; colorClass: string; badgeClass: string }
 > = {
     permissions: {
-        label: 'Sub-Accounts & Permissions',
+        label: 'Team',
         description: 'Manage staff accounts, assign granular role permissions and module gates.',
         icon: <TbShieldCheck className="text-xl text-indigo-500" />,
         colorClass: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800',

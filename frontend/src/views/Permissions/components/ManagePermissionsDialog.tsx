@@ -106,7 +106,7 @@ const ManagePermissionsDialog = ({
                                 {subAccount.name}
                             </h4>
                             <Tag className="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-xs font-semibold py-0.5 px-2">
-                                Sub-Account
+                                Team Member
                             </Tag>
                         </div>
                         <p className="text-xs text-gray-500">{subAccount.email}</p>

@@ -124,7 +124,7 @@ const CreateSubAccountDialog = ({
                 </div>
                 <div>
                     <h4 className="font-bold text-lg heading-text">
-                        Create Staff Sub-Account
+                        Add Team Member
                     </h4>
                     <p className="text-xs text-gray-500">
                         Add a new team member and assign their initial platform module access.
@@ -253,7 +253,7 @@ const CreateSubAccountDialog = ({
                         loading={isSubmitting}
                         icon={<TbShieldCheck />}
                     >
-                        Create Sub-Account
+                        Add Team Member
                     </Button>
                 </div>
             </form>
