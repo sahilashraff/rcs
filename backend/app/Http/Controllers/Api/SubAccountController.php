@@ -33,13 +33,14 @@ class SubAccountController extends Controller
             'password' => ['required', 'string', 'min:8'],
         ]);
 
-        $user = User::create([
-            'tenant_id' => $request->user()->tenant_id,
-            'is_owner' => false,
+        $user = new User([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+        $user->tenant_id = $request->user()->tenant_id;
+        $user->is_owner = false;
+        $user->save();
 
         return response()->json(['data' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email]], 201);
     }

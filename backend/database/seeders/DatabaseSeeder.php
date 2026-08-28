@@ -13,22 +13,24 @@ class DatabaseSeeder extends Seeder
     {
         $tenant = Tenant::create(['name' => 'Demo Tenant']);
 
-        User::create([
-            'tenant_id' => $tenant->id,
-            'is_owner' => true,
-            'is_admin' => false,
+        $demoUser = new User([
             'name' => 'Demo User',
             'email' => 'owner@rbm.local',
             'password' => Hash::make('Owner!12345'),
         ]);
+        $demoUser->tenant_id = $tenant->id;
+        $demoUser->is_owner = true;
+        $demoUser->is_admin = false;
+        $demoUser->save();
 
-        User::create([
-            'tenant_id' => null,
-            'is_owner' => false,
-            'is_admin' => true,
+        $admin = new User([
             'name' => 'Platform Admin',
             'email' => 'admin@rbm.local',
             'password' => Hash::make('Admin!12345'),
         ]);
+        $admin->tenant_id = null;
+        $admin->is_owner = false;
+        $admin->is_admin = true;
+        $admin->save();
     }
 }

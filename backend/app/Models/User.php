@@ -13,9 +13,6 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'tenant_id',
-        'is_owner',
-        'is_admin',
         'name',
         'email',
         'password',
