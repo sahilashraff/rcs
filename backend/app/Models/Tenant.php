@@ -11,7 +11,7 @@ class Tenant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'parent_tenant_id', 'is_white_label'];
+    protected $fillable = ['name'];
 
     protected function casts(): array
     {
