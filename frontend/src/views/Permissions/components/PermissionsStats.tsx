@@ -25,7 +25,7 @@ const PermissionsStats = ({
                 <div className="flex items-center justify-between">
                     <div>
                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Total Staff Accounts
+                            Total Team Members
                         </span>
                         <div className="mt-2 flex items-center gap-2">
                             <h3 className="font-bold text-2xl heading-text leading-none">
