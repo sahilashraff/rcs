@@ -11,12 +11,20 @@ export const protectedRoutes: Routes = [
         path: '/home',
         component: lazy(() => import('@/views/Home')),
         authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
     },
     {
         key: 'permissions',
         path: '/permissions',
         component: lazy(() => import('@/views/Permissions')),
         authority: ['permissions'],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
     },
     ...othersRoute,
 ]
