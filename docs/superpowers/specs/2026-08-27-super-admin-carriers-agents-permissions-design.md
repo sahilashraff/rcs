@@ -66,14 +66,43 @@ build on top of:
 
 ```
 Draft → Submitted → Approved → Live → Suspended
-                  → Rejected            → Terminated
+          ↑              ↓                ↓
+          └── Rejected   └──────→ Terminated ←┘
 ```
 
 Each carrier registration for a given Agent moves through this
 independently — a Jio registration can be Live while the same Agent's
-Airtel registration is still Rejected. Approved → Live is an automatic
-transition (the carrier's approval webhook/response is what makes it
-Live) — there is no separate manual "activate" step.
+Airtel registration is still Rejected.
+
+State-transition table (exact source of truth — the diagram above is
+just a visual aid):
+
+| From | To | Trigger |
+|---|---|---|
+| Draft | Submitted | Owner submits the agent for carrier review |
+| Submitted | Approved | Carrier approval webhook/response |
+| Submitted | Rejected | Carrier rejection webhook/response, with `rejection_reason` |
+| Rejected | Draft | Owner edits the registration to address the rejection reason — re-enters the same flow, not a special path |
+| Approved | Live | Automatic, immediately on Approved — no separate manual "activate" step |
+| Live | Suspended | Either an admin action (platform pauses it) or a carrier-pushed suspension event — `mapStatus()` must distinguish which, since only admin-suspended agents can be admin-reinstated |
+| Suspended | Live | Admin reinstates — **only** if the suspension was admin-triggered. A carrier-triggered suspension requires the carrier's own reactivation signal, not an admin toggle |
+| Live / Suspended | Terminated | Admin action or carrier-pushed permanent revocation. **One-way** — no path back from Terminated; a terminated registration must be recreated from Draft if the tenant wants back on that carrier |
+
+### Derived `Agent.status`
+
+Computed on read (no materialized column — avoids sync triggers, and
+agent counts are low-cardinality per tenant so aggregation cost is
+negligible), from the set of its `CarrierAgent.status` values:
+
+| Condition | Derived status |
+|---|---|
+| No `CarrierAgent` rows yet, or all Draft | `draft` |
+| At least one Submitted, none Live yet | `pending` |
+| At least one Live, at least one not-Live-and-not-Terminated | `partially_live` |
+| All non-Terminated registrations are Live | `live` |
+| At least one Live, rest Terminated | `live` (Terminated siblings don't drag it down) |
+| At least one Suspended, none Live | `suspended` |
+| All registrations Terminated | `terminated` |
 
 ### Canonical agent format
 
