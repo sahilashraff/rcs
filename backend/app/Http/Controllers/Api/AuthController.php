@@ -11,6 +11,7 @@ use App\Support\FeatureAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -44,7 +45,12 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'country_code' => ['required', 'string', 'max:5'],
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users')->where(fn ($query) => $query->where('country_code', $request->input('country_code'))),
+            ],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
@@ -100,12 +106,11 @@ class AuthController extends Controller
             ]);
         }
 
-        if ($user->otp_code !== $data['code']) {
+        if (! hash_equals((string) $user->otp_code, $data['code'])) {
             $user->otp_attempts++;
 
             if ($user->otp_attempts >= 5) {
                 $user->otp_code = null;
-                $user->otp_expires_at = null;
                 $user->save();
 
                 throw ValidationException::withMessages([
@@ -145,6 +150,12 @@ class AuthController extends Controller
         if ($user->phone_verified_at) {
             throw ValidationException::withMessages([
                 'code' => ['This account is already verified.'],
+            ]);
+        }
+
+        if (! $user->otp_expires_at) {
+            throw ValidationException::withMessages([
+                'userId' => ['No verification is pending for this account.'],
             ]);
         }
 
@@ -194,6 +205,7 @@ class AuthController extends Controller
             function (User $user, string $password) {
                 $user->password = Hash::make($password);
                 $user->save();
+                $user->tokens()->delete();
             }
         );
 
