@@ -11,7 +11,7 @@ class Tenant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'brand_name', 'description'];
 
     protected function casts(): array
     {
@@ -23,6 +23,11 @@ class Tenant extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
     }
 
     /**
@@ -43,5 +48,43 @@ class Tenant extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Tenant::class, 'parent_tenant_id');
+    }
+
+    /**
+     * Derived from the set of this Tenant's Agent statuses — moved here
+     * from the (now-deleted) parent Agent record's derivedStatus(), per
+     * the Bot/Agent data-model correction design spec. Not a stored
+     * column: agent counts are low-cardinality per tenant, so computing
+     * this on read avoids a sync-trigger/materialized-column mismatch.
+     * The single source of truth for this aggregation — nothing else
+     * re-implements it.
+     */
+    public function derivedStatus(): string
+    {
+        $statuses = $this->agents->pluck('status');
+
+        if ($statuses->isEmpty() || $statuses->every(fn ($s) => $s === 'draft')) {
+            return 'draft';
+        }
+
+        $nonTerminated = $statuses->filter(fn ($s) => $s !== 'terminated');
+
+        if ($nonTerminated->isEmpty()) {
+            return 'terminated';
+        }
+
+        if ($nonTerminated->contains('live')) {
+            return $nonTerminated->every(fn ($s) => $s === 'live') ? 'live' : 'partially_live';
+        }
+
+        if ($nonTerminated->contains('suspended')) {
+            return 'suspended';
+        }
+
+        if ($nonTerminated->contains('submitted')) {
+            return 'pending';
+        }
+
+        return 'draft';
     }
 }

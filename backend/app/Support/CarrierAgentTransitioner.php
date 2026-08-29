@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-use App\Models\CarrierAgent;
+use App\Models\Agent;
 use InvalidArgumentException;
 
 class CarrierAgentTransitioner
@@ -26,9 +26,9 @@ class CarrierAgentTransitioner
 
     /**
      * @throws InvalidArgumentException if the action is illegal from the
-     *         CarrierAgent's current status
+     *         Agent's current status
      */
-    public function transition(CarrierAgent $carrierAgent, string $action, ?string $rejectionReason = null): CarrierAgent
+    public function transition(Agent $agent, string $action, ?string $rejectionReason = null): Agent
     {
         if (! isset(self::TRANSITIONS[$action])) {
             throw new InvalidArgumentException("Unknown action: {$action}");
@@ -36,38 +36,38 @@ class CarrierAgentTransitioner
 
         [$allowedFrom, $to] = self::TRANSITIONS[$action];
 
-        if (! in_array($carrierAgent->status, $allowedFrom, true)) {
+        if (! in_array($agent->status, $allowedFrom, true)) {
             throw new InvalidArgumentException(
-                "Cannot {$action} a CarrierAgent with status {$carrierAgent->status}.",
+                "Cannot {$action} an Agent with status {$agent->status}.",
             );
         }
 
-        if ($action === 'reinstate' && $carrierAgent->suspended_by !== 'admin') {
+        if ($action === 'reinstate' && $agent->suspended_by !== 'admin') {
             throw new InvalidArgumentException(
-                'Only an admin-suspended CarrierAgent can be reinstated by an admin action.',
+                'Only an admin-suspended Agent can be reinstated by an admin action.',
             );
         }
 
         if ($action === 'reject' && ! $rejectionReason) {
-            throw new InvalidArgumentException('A rejection_reason is required to reject a CarrierAgent.');
+            throw new InvalidArgumentException('A rejection_reason is required to reject an Agent.');
         }
 
-        $carrierAgent->status = $to;
+        $agent->status = $to;
 
         if ($action === 'reject') {
-            $carrierAgent->rejection_reason = $rejectionReason;
+            $agent->rejection_reason = $rejectionReason;
         }
 
         if ($action === 'suspend') {
-            $carrierAgent->suspended_by = 'admin';
+            $agent->suspended_by = 'admin';
         }
 
         if ($action === 'reinstate') {
-            $carrierAgent->suspended_by = null;
+            $agent->suspended_by = null;
         }
 
-        $carrierAgent->save();
+        $agent->save();
 
-        return $carrierAgent;
+        return $agent;
     }
 }

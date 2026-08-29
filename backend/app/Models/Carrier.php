@@ -19,8 +19,8 @@ class Carrier extends Model
         ];
     }
 
-    public function carrierAgents(): HasMany
+    public function agents(): HasMany
     {
-        return $this->hasMany(CarrierAgent::class);
+        return $this->hasMany(Agent::class);
     }
 }
