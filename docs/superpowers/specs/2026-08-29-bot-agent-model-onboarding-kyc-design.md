@@ -282,6 +282,36 @@ component's actual name in this codebase) for search fields, and
 `DataTable` (`@/components/shared/DataTable`) for the table itself. No
 new table-layout pattern gets introduced.
 
+### Single-source-of-truth helpers (no duplicated logic)
+
+Per this project's standing convention, every piece of logic below has
+exactly one implementation, called from every site that needs it — never
+copy-pasted or re-derived:
+
+- **Derived status.** `Tenant::derivedStatus()` (B1) is the only place the
+  draft/pending/partially_live/live/suspended/terminated aggregation
+  exists. Both the global Agents list's summary and `isUnlocked`'s
+  "at least one Live" check call this one method — neither re-implements
+  its own version of "does this tenant have a live agent."
+- **`isUnlocked`.** Computed once, inside the existing shared
+  `userPayload()` helper (already the single source for `signIn`/
+  `signUp`/`verifyOtp`/`me`'s response bodies). The frontend only ever
+  reads `user.isUnlocked` off that payload — it never re-derives lock
+  state itself from Agent statuses.
+- **Document downloads.** One endpoint,
+  `GET /admin/onboarding-requests/{id}/documents/{field}`, parameterized
+  by which of the six file fields to stream — not six near-identical
+  endpoints/methods, one per document type.
+- **Onboarding submission.** One endpoint, `POST /onboarding`, handles
+  both the first submission and every resubmission after a rejection —
+  not a separate `resubmit` endpoint duplicating the same validation and
+  save logic.
+- **`CarrierAgentTransitioner`.** Unchanged from its existing role: the
+  one place any Agent's status ever changes. B2 does not add a second,
+  parallel way to move an Agent's status (e.g. no bespoke status-setting
+  code inside the approval action beyond the initial `draft` a new Agent
+  always starts at).
+
 ## Verification
 
 - **B1:** `php artisan migrate:fresh --seed` runs clean; tinker-verify a
