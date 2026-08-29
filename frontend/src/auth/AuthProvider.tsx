@@ -79,10 +79,12 @@ function AuthProvider({ children }: AuthProviderProps) {
         const search = window.location.search
         const params = new URLSearchParams(search)
         const redirectUrl = params.get(REDIRECT_URL_KEY)
+        const isAdmin = useSessionUser.getState().user.isAdmin
+        const entryPath = isAdmin
+            ? appConfig.adminEntryPath
+            : appConfig.authenticatedEntryPath
 
-        navigatorRef.current?.navigate(
-            redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath,
-        )
+        navigatorRef.current?.navigate(redirectUrl ? redirectUrl : entryPath)
     }
 
     const handleSignIn = (tokens: Token, user?: User) => {

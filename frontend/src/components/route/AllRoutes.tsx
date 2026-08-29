@@ -4,7 +4,11 @@ import AuthorityGuard from './AuthorityGuard'
 import FallbackRoute from './FallbackRoute'
 import AppRoute from './AppRoute'
 import PageContainer from '@/components/template/PageContainer'
-import { protectedRoutes, publicRoutes } from '@/configs/routes.config'
+import {
+    protectedRoutes,
+    publicRoutes,
+    adminProtectedRoutes,
+} from '@/configs/routes.config'
 import appConfig from '@/configs/app.config'
 import { useAuth } from '@/auth'
 import { Routes, Route, Navigate } from 'react-router'
@@ -17,10 +21,12 @@ interface ViewsProps {
 
 type AllRoutesProps = ViewsProps
 
-const { authenticatedEntryPath } = appConfig
-
 const AllRoutes = (props: AllRoutesProps) => {
     const { user } = useAuth()
+    const activeRoutes = user.isAdmin ? adminProtectedRoutes : protectedRoutes
+    const entryPath = user.isAdmin
+        ? appConfig.adminEntryPath
+        : appConfig.authenticatedEntryPath
 
     return (
         <Routes>
@@ -44,11 +50,8 @@ const AllRoutes = (props: AllRoutesProps) => {
                 ))}
             </Route>
             <Route path="/" element={<ProtectedRoute />}>
-                <Route
-                    index
-                    element={<Navigate replace to={authenticatedEntryPath} />}
-                />
-                {protectedRoutes.map((route, index) => (
+                <Route index element={<Navigate replace to={entryPath} />} />
+                {activeRoutes.map((route, index) => (
                     <Route
                         key={route.key + index}
                         path={route.path}

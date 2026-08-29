@@ -40,6 +40,7 @@ const initialState: AuthState = {
         userName: '',
         email: '',
         authority: [],
+        isAdmin: false,
     },
 }
 

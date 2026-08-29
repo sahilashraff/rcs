@@ -6,6 +6,7 @@ import { useThemeStore } from '@/store/themeStore'
 import { useSessionUser } from '@/store/authStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
 import navigationConfig from '@/configs/navigation.config'
+import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
 import appConfig from '@/configs/app.config'
 import { Link } from 'react-router'
 import {
@@ -51,6 +52,10 @@ const SideNav = ({
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
     const userAuthority = useSessionUser((state) => state.user.authority)
+    const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const activeNavigationConfig = isAdmin
+        ? adminNavigationConfig
+        : navigationConfig
 
     return (
         <div
@@ -83,7 +88,7 @@ const SideNav = ({
                 <ScrollBar style={{ height: '100%' }} direction={direction}>
                     <VerticalMenuContent
                         collapsed={sideNavCollapse}
-                        navigationTree={navigationConfig}
+                        navigationTree={activeNavigationConfig}
                         routeKey={currentRouteKey}
                         direction={direction}
                         translationSetup={translationSetup}

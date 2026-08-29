@@ -5,6 +5,7 @@ import NavToggle from '@/components/shared/NavToggle'
 import { DIR_RTL } from '@/constants/theme.constant'
 import withHeaderItem, { WithHeaderItemProps } from '@/utils/hoc/withHeaderItem'
 import navigationConfig from '@/configs/navigation.config'
+import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
 import appConfig from '@/configs/app.config'
 import { useThemeStore } from '@/store/themeStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
@@ -43,6 +44,10 @@ const MobileNav = ({
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
     const userAuthority = useSessionUser((state) => state.user.authority)
+    const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const activeNavigationConfig = isAdmin
+        ? adminNavigationConfig
+        : navigationConfig
 
     return (
         <>
@@ -62,7 +67,7 @@ const MobileNav = ({
                     {isOpen && (
                         <VerticalMenuContent
                             collapsed={false}
-                            navigationTree={navigationConfig}
+                            navigationTree={activeNavigationConfig}
                             routeKey={currentRouteKey}
                             userAuthority={userAuthority as string[]}
                             direction={direction}
