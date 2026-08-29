@@ -12,4 +12,14 @@ export const adminProtectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'admin.tenants',
+        path: '/admin/tenants',
+        component: lazy(() => import('@/views/AdminTenants')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]
