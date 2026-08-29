@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\SubAccountController;
+use App\Http\Controllers\Api\TenantAgentController;
 use App\Http\Controllers\Api\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/features', [FeatureController::class, 'index']);
 
     Route::middleware('can:access-feature,"permissions"')->get('/permissions/ping', [PingController::class, 'permissions']);
+    Route::middleware('can:access-feature,"agents"')->get('/agents', [TenantAgentController::class, 'index']);
 
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);

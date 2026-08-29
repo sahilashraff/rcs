@@ -16,4 +16,12 @@ return [
         'public' => false,
         'owner_only' => true,
     ],
+    [
+        'key' => 'agents',
+        'label' => 'Agents',
+        'route' => '/agents',
+        'sidebar' => true,
+        'public' => false,
+        'owner_only' => true,
+    ],
 ];
