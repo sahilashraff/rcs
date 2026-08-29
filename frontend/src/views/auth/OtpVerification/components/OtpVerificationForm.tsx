@@ -2,18 +2,18 @@ import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
 import OtpInput from '@/components/shared/OtpInput'
-import sleep from '@/utils/sleep'
+import { useAuth } from '@/auth'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 
 interface OtpVerificationFormProps extends CommonProps {
-    setOtpVerified?: (message: string) => void
+    userId: number
     setMessage?: (message: string) => void
 }
 
-type ForgotPasswordFormSchema = {
+type OtpVerificationFormSchema = {
     otp: string
 }
 
@@ -26,38 +26,32 @@ const validationSchema = z.object({
 const OtpVerificationForm = (props: OtpVerificationFormProps) => {
     const [isSubmitting, setSubmitting] = useState<boolean>(false)
 
-    const { className, setMessage, setOtpVerified } = props
+    const { className, setMessage, userId } = props
+
+    const { verifyOtp } = useAuth()
 
     const {
         handleSubmit,
         formState: { errors },
         control,
-    } = useForm<ForgotPasswordFormSchema>({
+    } = useForm<OtpVerificationFormSchema>({
         resolver: zodResolver(validationSchema),
     })
 
-    const onOtpSend = async (values: ForgotPasswordFormSchema) => {
-        const { otp } = values
+    const onOtpSubmit = async (values: OtpVerificationFormSchema) => {
         setSubmitting(true)
-        try {
-            /** simulate api call with sleep */
-            await sleep(1000)
-            setSubmitting(false)
-            setOtpVerified?.('OTP verified!')
-        } catch (errors) {
-            setMessage?.(
-                typeof errors === 'string' ? errors : 'Some error occured!',
-            )
-            setSubmitting(false)
+        const result = await verifyOtp({ userId, code: values.otp })
+
+        if (result?.status === 'failed') {
+            setMessage?.(result.message)
         }
 
-        console.log('otp', otp)
         setSubmitting(false)
     }
 
     return (
         <div className={className}>
-            <Form onSubmit={handleSubmit(onOtpSend)}>
+            <Form onSubmit={handleSubmit(onOtpSubmit)}>
                 <FormItem
                     invalid={Boolean(errors.otp)}
                     errorMessage={errors.otp?.message}

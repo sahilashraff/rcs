@@ -1,21 +1,24 @@
 import Alert from '@/components/ui/Alert'
 import OtpVerificationForm from './components/OtpVerificationForm'
-import sleep from '@/utils/sleep'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
+import { apiResendOtp } from '@/services/AuthService'
+import { useSearchParams } from 'react-router'
 
 export const OtpVerificationBase = () => {
-    const [otpVerified, setOtpVerified] = useTimeOutMessage()
+    const [searchParams] = useSearchParams()
+    const userId = Number(searchParams.get('userId'))
+
     const [otpResend, setOtpResend] = useTimeOutMessage()
     const [message, setMessage] = useTimeOutMessage()
 
     const handleResendOtp = async () => {
         try {
-            /** simulate api call with sleep */
-            await sleep(500)
-            setOtpResend('We have sent you One Time Password.')
-        } catch (errors) {
+            await apiResendOtp({ userId })
+            setOtpResend('We have sent you a new One Time Password.')
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        } catch (errors: any) {
             setMessage?.(
-                typeof errors === 'string' ? errors : 'Some error occured!',
+                errors?.response?.data?.message || 'Some error occured!',
             )
         }
     }
@@ -25,7 +28,7 @@ export const OtpVerificationBase = () => {
             <div className="mb-8">
                 <h3 className="mb-2">OTP Verification</h3>
                 <p className="font-semibold heading-text">
-                    We have sent you One Time Password to your email.
+                    We have sent you a One Time Password to your phone.
                 </p>
             </div>
             {message && (
@@ -38,15 +41,7 @@ export const OtpVerificationBase = () => {
                     <span className="break-all">{otpResend}</span>
                 </Alert>
             )}
-            {otpVerified && (
-                <Alert showIcon className="mb-4" type="success">
-                    <span className="break-all">{otpVerified}</span>
-                </Alert>
-            )}
-            <OtpVerificationForm
-                setMessage={setMessage}
-                setOtpVerified={setOtpVerified}
-            />
+            <OtpVerificationForm userId={userId} setMessage={setMessage} />
             <div className="mt-4 text-center">
                 <span className="font-semibold">Din&apos;t receive OTP? </span>
                 <button
