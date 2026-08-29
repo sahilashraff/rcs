@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Carrier;
+use App\Models\Setting;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -51,5 +52,7 @@ class DatabaseSeeder extends Seeder
         ] as $carrier) {
             Carrier::create($carrier);
         }
+
+        Setting::set('otp_verification_enabled', '0');
     }
 }
