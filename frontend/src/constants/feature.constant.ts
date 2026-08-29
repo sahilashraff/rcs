@@ -4,3 +4,4 @@
 // instead of repeating the literal, so a rename only needs updating here.
 export const FEATURE_DASHBOARD = 'dashboard'
 export const FEATURE_PERMISSIONS = 'permissions'
+export const FEATURE_AGENTS = 'agents'
