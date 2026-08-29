@@ -9,6 +9,8 @@ import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 
 interface ResetPasswordFormProps extends CommonProps {
+    token: string
+    email: string
     resetComplete: boolean
     setResetComplete?: (compplete: boolean) => void
     setMessage?: (message: string) => void
@@ -32,8 +34,15 @@ const validationSchema = z
 const ResetPasswordForm = (props: ResetPasswordFormProps) => {
     const [isSubmitting, setSubmitting] = useState<boolean>(false)
 
-    const { className, setMessage, setResetComplete, resetComplete, children } =
-        props
+    const {
+        className,
+        setMessage,
+        setResetComplete,
+        resetComplete,
+        children,
+        token,
+        email,
+    } = props
 
     const {
         handleSubmit,
@@ -48,6 +57,8 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
 
         try {
             const resp = await apiResetPassword<boolean>({
+                email,
+                token,
                 password: newPassword,
             })
             if (resp) {
