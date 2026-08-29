@@ -9,7 +9,10 @@ class AgentController extends Controller
 {
     public function index()
     {
-        $agents = Agent::with('tenant', 'carrier')->get();
+        $agents = Agent::with('tenant', 'carrier')
+            ->orderBy('tenant_id')
+            ->orderBy('carrier_id')
+            ->get();
 
         $data = $agents->map(fn (Agent $agent) => [
             'id' => $agent->id,

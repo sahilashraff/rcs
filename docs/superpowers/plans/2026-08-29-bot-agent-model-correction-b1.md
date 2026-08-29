@@ -21,12 +21,24 @@
 - Single-source-of-truth helpers: the derived-status aggregation exists in exactly one place (`Tenant::derivedStatus()`) — no duplicate re-implementation anywhere else.
 - New tables/lists use `AdaptiveCard`, `DebouceInput` (that's the actual — typo'd — component name in this codebase, not a typo in this plan), and `DataTable`, matching the pattern already established in `AdminAgents`/`AdminCarriers`.
 
-## Two small, deliberate deviations from the spec's literal wording
+## Three small, deliberate deviations from the spec's literal wording
 
 Both are noted here so they're traceable, not silent drift — the spec's intent (a clean renamed `Agent` resource, no dead endpoints, no duplicate identity fields) is better served by these than by following the literal text:
 
 1. **`GET /admin/agents/{agent}` (the old `show()` endpoint) is dropped, not kept.** The spec's routes list said to keep it, but that assumed a still-existing Admin Agent Detail page consuming it. Since that page is also being removed (per the spec's own "Frontend" section — one global table replaces it) and the global table's `index()` response already carries every field any consumer needs, `show()` would be dead code with zero callers. Removed instead of kept-but-unused.
 2. **The old parent `Agent`'s `name` field is dropped, not moved anywhere.** The spec explicitly moves `brand_name`/`description` to `tenants`, but doesn't address the old `Agent.name` field (a third identity field: an internal admin-facing label, distinct from the customer-facing `brand_name`). Moving it to `tenants` would collide with the column that already exists there (`tenants.name` — the tenant/account name from sign-up, a different concept that happens to share a label). Since the new model assumes one identity per tenant, `tenants.name` (already always set) is sufficient for "what to call this tenant" — no second, confusingly-similar field is added.
+3. **The tenant-side Agents page was rebuilt around a single status badge and
+   one flat table, not left "unchanged in shape" as the spec's literal text
+   said.** The spec assumed the page's existing stats cards, grid item, and
+   per-tenant header would carry over untouched, consuming only the
+   flattened API response. In practice those components (`AgentsStats.tsx`,
+   `AgentGridItem.tsx`, `AgentsHeader.tsx`, `TenantAgentsTableTools.tsx`)
+   were built around the old nested `carrier_agents` shape and made
+   assumptions (grid-of-cards, per-agent stat tiles) that don't carry over
+   cleanly to a flat six-row-max list. Task 5 replaced them with a single
+   status tag plus a plain `DataTable`, matching the same pattern already
+   used on the Admin side — simpler, and consistent with the rest of this
+   plan's UI, at the cost of not being a literal no-op on that page.
 
 ---
 
@@ -1430,4 +1442,18 @@ Sign in as `owner@rbm.local` — the Agents nav item shows a status badge ("Live
 
 - [ ] **Step 3: Report to the user**
 
-Summarize: the parent `Agent`/"Bot" table is gone; `tenants` now owns the shared identity (`brand_name`/`description`); the renamed `Agent` model (was `CarrierAgent`) belongs directly to `Tenant`, one row per (carrier × OS); Admin manages every tenant's agents from one global table with inline lifecycle actions, no more standalone detail page; the tenant-side page shows the same corrected flat shape. Two small, documented deviations from the spec's literal text (dropping the unused `show()` endpoint, dropping the old `Agent.name` field instead of duplicating `tenants.name`) are called out in this plan's header for traceability. `git push` remains a separate, explicit step. B2 (onboarding/KYC, Admin review, account-lock gating) is next, as its own plan, once this is confirmed working.
+Summarize: the parent `Agent`/"Bot" table is gone; `tenants` now owns the shared identity (`brand_name`/`description`); the renamed `Agent` model (was `CarrierAgent`) belongs directly to `Tenant`, one row per (carrier × OS); Admin manages every tenant's agents from one global table with inline lifecycle actions, no more standalone detail page; the tenant-side page shows the same corrected flat shape. Three small, documented deviations from the spec's literal text (dropping the unused `show()` endpoint, dropping the old `Agent.name` field instead of duplicating `tenants.name`, rebuilding the tenant-side Agents page around a single status tag and flat table) are called out in this plan's header for traceability. `git push` remains a separate, explicit step. B2 (onboarding/KYC, Admin review, account-lock gating) is next, as its own plan, once this is confirmed working.
+
+## Note for future migrations against `agents`
+
+Every index and foreign-key constraint on the renamed `agents` table still
+carries the old `carrier_agents_` name prefix (e.g.
+`carrier_agents_tenant_id_carrier_id_os_unique`,
+`carrier_agents_tenant_id_foreign`) — `Schema::rename()` does not rename
+constraint names, only the table. A future migration that calls
+`$table->dropUnique(['tenant_id', 'carrier_id', 'os'])` or
+`$table->dropForeign(['tenant_id'])` using bare column-name inference will
+compute an `agents_...`-prefixed name and fail, since the actual stored name
+is still `carrier_agents_...`-prefixed. Pass the literal current name
+(`$table->dropUnique('carrier_agents_tenant_id_carrier_id_os_unique')`, etc.)
+until/unless a migration explicitly renames these constraints.

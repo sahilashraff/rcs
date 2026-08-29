@@ -48,14 +48,14 @@ class CarrierAgentTransitioner
             );
         }
 
-        if ($action === 'reject' && ! $rejectionReason) {
+        if ($action === 'reject' && ! trim((string) $rejectionReason)) {
             throw new InvalidArgumentException('A rejection_reason is required to reject an Agent.');
         }
 
         $agent->status = $to;
 
         if ($action === 'reject') {
-            $agent->rejection_reason = $rejectionReason;
+            $agent->rejection_reason = trim($rejectionReason);
         }
 
         if ($action === 'suspend') {

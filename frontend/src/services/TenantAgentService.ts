@@ -5,6 +5,7 @@ export type TenantAgentEntry = {
     carrier_name: string
     os: 'android' | 'ios'
     status: string
+    rejection_reason: string | null
 }
 
 export type TenantAgents = {

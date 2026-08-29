@@ -33,7 +33,7 @@ const AgentListTableTools = ({
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <DebouceInput
-                placeholder="Search agents, tenants, or brands..."
+                placeholder="Search tenants, brands, or carriers..."
                 suffix={<TbSearch className="text-lg" />}
                 onChange={handleInputChange}
             />

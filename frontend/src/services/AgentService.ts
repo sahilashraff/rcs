@@ -15,6 +15,21 @@ export type AgentSummary = {
     suspended_by: 'admin' | 'carrier' | null
 }
 
+export type Agent = {
+    id: number
+    tenant_id: number
+    carrier_id: number
+    os: 'android' | 'ios'
+    carrier_external_id: string | null
+    status: string
+    rejection_reason: string | null
+    suspended_by: 'admin' | 'carrier' | null
+    last_submitted_payload: unknown
+    last_carrier_response: unknown
+    created_at: string
+    updated_at: string
+}
+
 export async function apiGetAgents() {
     return ApiService.fetchDataWithAxios<{ data: AgentSummary[] }>({
         url: '/admin/agents',
@@ -27,7 +42,7 @@ export async function apiTransitionAgent(
     action: string,
     rejectionReason?: string,
 ) {
-    return ApiService.fetchDataWithAxios<{ data: AgentSummary }>({
+    return ApiService.fetchDataWithAxios<{ data: Agent }>({
         url: `/admin/agents/${agentId}/transition`,
         method: 'post',
         data: { action, rejection_reason: rejectionReason },

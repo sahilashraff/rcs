@@ -9,7 +9,13 @@ class TenantAgentController extends Controller
 {
     public function index(Request $request)
     {
-        $tenant = $request->user()->tenant()->with('agents.carrier')->first();
+        $tenant = $request->user()->tenant;
+
+        if (! $tenant) {
+            return response()->json(['data' => ['status' => 'draft', 'agents' => []]]);
+        }
+
+        $tenant->loadMissing('agents.carrier');
 
         return response()->json([
             'data' => [
@@ -19,6 +25,7 @@ class TenantAgentController extends Controller
                     'carrier_name' => $agent->carrier->name,
                     'os' => $agent->os,
                     'status' => $agent->status,
+                    'rejection_reason' => $agent->rejection_reason,
                 ]),
             ],
         ]);

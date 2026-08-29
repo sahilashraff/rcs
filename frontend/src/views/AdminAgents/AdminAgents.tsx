@@ -13,6 +13,8 @@ const AdminAgents = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
+    const [pageIndex, setPageIndex] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
 
     const loadData = useCallback(async () => {
         try {
@@ -78,6 +80,20 @@ const AdminAgents = () => {
         })
     }, [agents, searchQuery, statusFilter])
 
+    useEffect(() => {
+        setPageIndex(1)
+    }, [searchQuery, statusFilter])
+
+    const pageAgents = useMemo(() => {
+        const start = (pageIndex - 1) * pageSize
+        return filteredAgents.slice(start, start + pageSize)
+    }, [filteredAgents, pageIndex, pageSize])
+
+    const handleSelectChange = (size: number) => {
+        setPageSize(size)
+        setPageIndex(1)
+    }
+
     return (
         <Container>
             <AdaptiveCard>
@@ -93,9 +109,16 @@ const AdminAgents = () => {
                     />
 
                     <AgentListTable
-                        agents={filteredAgents}
+                        agents={pageAgents}
                         isLoading={isLoading}
                         onTransition={handleTransition}
+                        pagingData={{
+                            total: filteredAgents.length,
+                            pageIndex,
+                            pageSize,
+                        }}
+                        onPaginationChange={setPageIndex}
+                        onSelectChange={handleSelectChange}
                     />
                 </div>
             </AdaptiveCard>

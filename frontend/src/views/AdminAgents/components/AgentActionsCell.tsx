@@ -38,7 +38,7 @@ const AgentActionsCell = ({ agent, onTransition }: AgentActionsCellProps) => {
 
     const handleClick = async (action: string) => {
         if (action === 'reject') {
-            const reason = window.prompt('Rejection reason:')
+            const reason = window.prompt('Rejection reason:')?.trim()
             if (!reason) return
             setPendingAction(action)
             try {
