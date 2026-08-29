@@ -87,6 +87,12 @@ class AuthController extends Controller
 
         $user = User::findOrFail($data['userId']);
 
+        if ($user->phone_verified_at) {
+            throw ValidationException::withMessages([
+                'code' => ['This account is already verified.'],
+            ]);
+        }
+
         if (! $user->otp_code || ! $user->otp_expires_at || $user->otp_expires_at->isPast()) {
             throw ValidationException::withMessages([
                 'code' => ['This code has expired. Request a new one.'],
@@ -134,6 +140,12 @@ class AuthController extends Controller
         ]);
 
         $user = User::findOrFail($data['userId']);
+
+        if ($user->phone_verified_at) {
+            throw ValidationException::withMessages([
+                'code' => ['This account is already verified.'],
+            ]);
+        }
 
         $issuedAt = $user->otp_expires_at?->copy()->subMinutes(10);
 
