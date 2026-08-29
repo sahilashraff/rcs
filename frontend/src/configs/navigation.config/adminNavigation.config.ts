@@ -32,6 +32,16 @@ const adminNavigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [],
     },
+    {
+        key: 'admin.agents',
+        path: '/admin/agents',
+        title: 'Agents',
+        translateKey: 'nav.adminAgents',
+        icon: 'singleMenu',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: [],
+        subMenu: [],
+    },
 ]
 
 export default adminNavigationConfig

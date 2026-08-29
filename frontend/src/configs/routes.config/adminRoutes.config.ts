@@ -32,4 +32,24 @@ export const adminProtectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'admin.agents',
+        path: '/admin/agents',
+        component: lazy(() => import('@/views/AdminAgents')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: 'admin.agents.detail',
+        path: '/admin/agents/:id',
+        component: lazy(() => import('@/views/AdminAgentDetail')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]
