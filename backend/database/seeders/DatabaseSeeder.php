@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Carrier;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -42,5 +43,13 @@ class DatabaseSeeder extends Seeder
         $teamMember->is_owner = false;
         $teamMember->is_admin = false;
         $teamMember->save();
+
+        foreach ([
+            ['code' => 'jio', 'name' => 'Jio', 'country' => 'IN'],
+            ['code' => 'vi', 'name' => 'Vi', 'country' => 'IN'],
+            ['code' => 'airtel', 'name' => 'Airtel', 'country' => 'IN'],
+        ] as $carrier) {
+            Carrier::create($carrier);
+        }
     }
 }
