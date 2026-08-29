@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Agent;
 use App\Models\Carrier;
 use App\Models\Setting;
 use App\Models\Tenant;
@@ -13,7 +14,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $tenant = Tenant::create(['name' => 'Demo Tenant']);
+        $tenant = Tenant::create([
+            'name' => 'Demo Tenant',
+            'brand_name' => 'Demo Support',
+            'description' => 'Demo tenant seeded for local development.',
+        ]);
 
         $demoUser = new User([
             'name' => 'Demo User',
@@ -54,5 +59,12 @@ class DatabaseSeeder extends Seeder
         }
 
         Setting::set('otp_verification_enabled', '0');
+
+        Agent::create([
+            'tenant_id' => $tenant->id,
+            'carrier_id' => Carrier::where('code', 'jio')->first()->id,
+            'os' => 'android',
+            'status' => 'live',
+        ]);
     }
 }
