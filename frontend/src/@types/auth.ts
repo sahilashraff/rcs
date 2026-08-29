@@ -15,16 +15,20 @@ export type SignInResponse = {
     }
 }
 
-export type SignUpResponse = SignInResponse
+export type SignUpCredential = {
+    name: string
+    email: string
+    country_code: string
+    phone: string
+    password: string
+}
+
+export type SignUpResponse =
+    | SignInResponse
+    | { requiresVerification: true; userId: number }
 
 export type CurrentUserResponse = {
     user: SignInResponse['user']
-}
-
-export type SignUpCredential = {
-    userName: string
-    email: string
-    password: string
 }
 
 export type ForgotPassword = {
@@ -32,7 +36,18 @@ export type ForgotPassword = {
 }
 
 export type ResetPassword = {
+    email: string
+    token: string
     password: string
+}
+
+export type VerifyOtp = {
+    userId: number
+    code: string
+}
+
+export type ResendOtp = {
+    userId: number
 }
 
 export type AuthRequestStatus = 'success' | 'failed' | ''

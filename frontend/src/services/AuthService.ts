@@ -5,6 +5,8 @@ import type {
     SignUpCredential,
     ForgotPassword,
     ResetPassword,
+    VerifyOtp,
+    ResendOtp,
     SignInResponse,
     SignUpResponse,
     CurrentUserResponse,
@@ -55,6 +57,22 @@ export async function apiForgotPassword<T>(data: ForgotPassword) {
 export async function apiResetPassword<T>(data: ResetPassword) {
     return ApiService.fetchDataWithAxios<T>({
         url: endpointConfig.resetPassword,
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiVerifyOtp(data: VerifyOtp) {
+    return ApiService.fetchDataWithAxios<SignInResponse>({
+        url: '/otp/verify',
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiResendOtp(data: ResendOtp) {
+    return ApiService.fetchDataWithAxios<{ status: string }>({
+        url: '/otp/resend',
         method: 'post',
         data,
     })
