@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\OtpSender;
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Support\FeatureAccess;
 use Illuminate\Http\Request;
@@ -32,6 +35,128 @@ class AuthController extends Controller
             'token' => $token,
             'user' => $this->userPayload($user),
         ]);
+    }
+
+    public function signUp(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'country_code' => ['required', 'string', 'max:5'],
+            'phone' => ['required', 'string', 'max:20'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $tenant = Tenant::create(['name' => "{$data['name']}'s Account"]);
+
+        $user = new User([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'country_code' => $data['country_code'],
+            'phone' => $data['phone'],
+            'password' => Hash::make($data['password']),
+        ]);
+        $user->tenant_id = $tenant->id;
+        $user->is_owner = true;
+        $user->is_admin = false;
+        $user->save();
+
+        if (! filter_var(Setting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {
+            $token = $user->createToken('spa')->plainTextToken;
+
+            return response()->json([
+                'token' => $token,
+                'user' => $this->userPayload($user),
+            ]);
+        }
+
+        $this->issueOtp($user);
+
+        return response()->json([
+            'requiresVerification' => true,
+            'userId' => $user->id,
+        ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $data = $request->validate([
+            'userId' => ['required', 'integer', 'exists:users,id'],
+            'code' => ['required', 'string'],
+        ]);
+
+        $user = User::findOrFail($data['userId']);
+
+        if (! $user->otp_code || ! $user->otp_expires_at || $user->otp_expires_at->isPast()) {
+            throw ValidationException::withMessages([
+                'code' => ['This code has expired. Request a new one.'],
+            ]);
+        }
+
+        if ($user->otp_code !== $data['code']) {
+            $user->otp_attempts++;
+
+            if ($user->otp_attempts >= 5) {
+                $user->otp_code = null;
+                $user->otp_expires_at = null;
+                $user->save();
+
+                throw ValidationException::withMessages([
+                    'code' => ['Too many incorrect attempts. Request a new code.'],
+                ]);
+            }
+
+            $user->save();
+
+            throw ValidationException::withMessages([
+                'code' => ['Incorrect code.'],
+            ]);
+        }
+
+        $user->phone_verified_at = now();
+        $user->otp_code = null;
+        $user->otp_expires_at = null;
+        $user->otp_attempts = 0;
+        $user->save();
+
+        $token = $user->createToken('spa')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $this->userPayload($user),
+        ]);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $data = $request->validate([
+            'userId' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::findOrFail($data['userId']);
+
+        $issuedAt = $user->otp_expires_at?->copy()->subMinutes(10);
+
+        if ($issuedAt && $issuedAt->addSeconds(30)->isFuture()) {
+            throw ValidationException::withMessages([
+                'code' => ['Please wait a few seconds before requesting another code.'],
+            ]);
+        }
+
+        $this->issueOtp($user);
+
+        return response()->json(['status' => 'sent']);
+    }
+
+    private function issueOtp(User $user): void
+    {
+        $code = (string) random_int(100000, 999999);
+        $user->otp_code = $code;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->otp_attempts = 0;
+        $user->save();
+
+        app(OtpSender::class)->send($user, $code);
     }
 
     public function signOut(Request $request)

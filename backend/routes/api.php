@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\TenantController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/sign-in', [AuthController::class, 'signIn']);
+Route::post('/sign-up', [AuthController::class, 'signUp']);
+Route::post('/otp/verify', [AuthController::class, 'verifyOtp']);
+Route::post('/otp/resend', [AuthController::class, 'resendOtp']);
 Route::middleware('auth:sanctum')->post('/sign-out', [AuthController::class, 'signOut']);
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'me']);
 
