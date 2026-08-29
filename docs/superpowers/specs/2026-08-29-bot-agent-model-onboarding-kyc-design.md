@@ -162,6 +162,11 @@ those 6 to actually create.
    of their Agents reaches Live — not merely on approval. This reuses
    B1's Tenant-level derived-status aggregation.
 
+On approval, Admin's chosen `display_name`/`description` from the request
+are copied onto `tenants.brand_name`/`tenants.description` — this is the
+one point where the onboarding submission's data becomes the tenant's
+actual identity, consumed by every subsequent Agent creation.
+
 ### Data model
 
 **New `onboarding_requests` table** — one row per submission:
@@ -222,13 +227,27 @@ through, just applied to a file response instead of JSON.
   onboarding wizard route; no sidebar navigation needed since there's
   nothing else to navigate to while locked.
 
-### Frontend — onboarding wizard
+### Frontend — locked screen (onboarding wizard + status progression)
 
-A multi-step form (the `Steps` component, same pattern already used for
-Sign-up's 2-step wizard) covering the KYC field groups as steps, with file
-inputs for the six documents, submitting to `POST /onboarding`. On
-rejection, the same page shows the reason and lets the User edit and
-resubmit.
+The locked screen is not just the wizard — while `isUnlocked === false`
+it shows one of four states, driven by `GET /onboarding/mine` (and, once
+approved, the Agent statuses that request produced):
+
+1. **Draft / no request yet** — the multi-step KYC form itself (the
+   `Steps` component, same pattern as Sign-up's 2-step wizard), covering
+   the field groups as steps, with file inputs for the six documents,
+   submitting to `POST /onboarding`.
+2. **Submitted / pending** — a "KYC Under Admin Review" banner with a
+   read-only summary of what was submitted. No form, nothing to do but
+   wait.
+3. **Rejected** — an alert showing `rejection_reason`, followed by the
+   same form pre-filled with the previous submission, editable and
+   resubmittable (`POST /onboarding` again).
+4. **Approved / provisioning** — "Approved — Operator Provisioning in
+   Progress", showing a badge per Agent created at approval (carrier +
+   OS + current status). The instant any of those Agents reaches Live,
+   `isUnlocked` flips true on the next `/user`/`/me` call and the User
+   moves into the full app — no separate action needed on their end.
 
 ### Frontend — Admin review
 
@@ -239,6 +258,29 @@ downloads, an Approve action (carrier/OS multi-select) and a Reject action
 **not** where ongoing bot management happens; once Agent rows exist,
 Admin manages them from the global Agents list (B1), never by returning
 here.
+
+### Seeder alignment
+
+`DatabaseSeeder.php`'s existing Demo User (`owner@rbm.local`) predates
+this design and has no `brand_name` or Agent rows — under the new
+`isUnlocked` gating that account would be locked out on every fresh
+`migrate:fresh --seed`, breaking every manual test/demo that assumes it
+can reach the full app immediately. The seeder gains: a `brand_name`/
+`description` on the Demo Tenant, and at least one seeded Agent already
+at `live` status, so `owner@rbm.local` stays unlocked out of the box —
+locked-state testing uses a separate, deliberately-unapproved seeded
+account instead.
+
+### Component layout consistency
+
+Every new table this design introduces — the global Admin Agents table
+(B1) and the Admin onboarding-requests list (B2) — uses the same three
+components the existing Admin pages already established this session:
+`AdaptiveCard` (`@/components/shared/AdaptiveCard`) as the containing
+card, `DebouceInput` (`@/components/shared/DebouceInput` — that's the
+component's actual name in this codebase) for search fields, and
+`DataTable` (`@/components/shared/DataTable`) for the table itself. No
+new table-layout pattern gets introduced.
 
 ## Verification
 
