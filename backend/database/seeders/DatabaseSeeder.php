@@ -32,5 +32,15 @@ class DatabaseSeeder extends Seeder
         $admin->is_owner = false;
         $admin->is_admin = true;
         $admin->save();
+
+        $teamMember = new User([
+            'name' => 'Team Member',
+            'email' => 'team@rbm.local',
+            'password' => Hash::make('Team!12345'),
+        ]);
+        $teamMember->tenant_id = $tenant->id;
+        $teamMember->is_owner = false;
+        $teamMember->is_admin = false;
+        $teamMember->save();
     }
 }
