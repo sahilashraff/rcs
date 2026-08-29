@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\SubAccountController;
+use App\Http\Controllers\Api\TenantController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/sign-in', [AuthController::class, 'signIn']);
@@ -21,5 +23,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/sub-accounts/{user}/permissions', [SubAccountController::class, 'updatePermissions']);
     });
 
-    Route::middleware('is-admin')->get('/admin/ping', [PingController::class, 'admin']);
+    Route::middleware('is-admin')->group(function () {
+        Route::get('/admin/ping', [PingController::class, 'admin']);
+        Route::get('/admin/tenants', [TenantController::class, 'index']);
+        Route::get('/admin/carriers', [CarrierController::class, 'index']);
+        Route::post('/admin/carriers', [CarrierController::class, 'store']);
+        Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
+    });
 });
