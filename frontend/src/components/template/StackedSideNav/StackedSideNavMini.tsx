@@ -8,7 +8,8 @@ import {
     HEADER_HEIGHT,
 } from '@/constants/theme.constant'
 import { NAV_ITEM_TYPE_ITEM } from '@/constants/navigation.constant'
-import appConfig from '@/configs/app.config'
+import { useSessionUser } from '@/store/authStore'
+import getEntryPath from '@/utils/getEntryPath'
 import navigationIcon from '@/configs/navigation-icon.config'
 import useMenuActive from '@/utils/hooks/useMenuActive'
 import isEmpty from 'lodash/isEmpty'
@@ -57,6 +58,7 @@ const StackedSideNavMini = (props: StackedSideNavMiniProps) => {
     } = props
 
     const { includedRouteTree } = useMenuActive(navigationTree, routeKey)
+    const isAdmin = useSessionUser((state) => state.user.isAdmin)
 
     const handleMenuItemSelect = ({
         key,
@@ -98,7 +100,7 @@ const StackedSideNavMini = (props: StackedSideNavMiniProps) => {
     return (
         <div {...rest}>
             <Link
-                to={appConfig.authenticatedEntryPath}
+                to={getEntryPath(isAdmin)}
                 className="stacked-mini-nav-header flex items-center justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

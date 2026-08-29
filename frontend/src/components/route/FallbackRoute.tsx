@@ -1,15 +1,16 @@
 import appConfig from '@/configs/app.config'
+import getEntryPath from '@/utils/getEntryPath'
 import { useAuth } from '@/auth'
 import { Navigate } from 'react-router'
 
-const { authenticatedEntryPath, unAuthenticatedEntryPath } = appConfig
+const { unAuthenticatedEntryPath } = appConfig
 
 const FallbackRoute = () => {
 
-    const { authenticated } = useAuth()
+    const { authenticated, user } = useAuth()
 
     return (
-        <Navigate replace to={ authenticated ? authenticatedEntryPath : unAuthenticatedEntryPath } />
+        <Navigate replace to={ authenticated ? getEntryPath(user.isAdmin) : unAuthenticatedEntryPath } />
     )
 }
 

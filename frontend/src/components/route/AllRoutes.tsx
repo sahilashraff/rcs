@@ -9,7 +9,7 @@ import {
     publicRoutes,
     adminProtectedRoutes,
 } from '@/configs/routes.config'
-import appConfig from '@/configs/app.config'
+import getEntryPath from '@/utils/getEntryPath'
 import { useAuth } from '@/auth'
 import { Routes, Route, Navigate } from 'react-router'
 import type { LayoutType } from '@/@types/theme'
@@ -24,9 +24,7 @@ type AllRoutesProps = ViewsProps
 const AllRoutes = (props: AllRoutesProps) => {
     const { user } = useAuth()
     const activeRoutes = user.isAdmin ? adminProtectedRoutes : protectedRoutes
-    const entryPath = user.isAdmin
-        ? appConfig.adminEntryPath
-        : appConfig.authenticatedEntryPath
+    const entryPath = getEntryPath(user.isAdmin)
 
     return (
         <Routes>

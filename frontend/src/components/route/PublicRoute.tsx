@@ -1,13 +1,11 @@
 import { Navigate, Outlet } from 'react-router'
-import appConfig from '@/configs/app.config'
+import getEntryPath from '@/utils/getEntryPath'
 import { useAuth } from '@/auth'
 
-const { authenticatedEntryPath } = appConfig
-
 const PublicRoute = () => {
-    const { authenticated } = useAuth()
+    const { authenticated, user } = useAuth()
 
-    return authenticated ? <Navigate to={authenticatedEntryPath} /> : <Outlet />
+    return authenticated ? <Navigate to={getEntryPath(user.isAdmin)} /> : <Outlet />
 }
 
 export default PublicRoute

@@ -8,6 +8,7 @@ import { useRouteKeyStore } from '@/store/routeKeyStore'
 import navigationConfig from '@/configs/navigation.config'
 import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
 import appConfig from '@/configs/app.config'
+import getEntryPath from '@/utils/getEntryPath'
 import { Link } from 'react-router'
 import {
     SIDE_NAV_WIDTH,
@@ -68,7 +69,7 @@ const SideNav = ({
             )}
         >
             <Link
-                to={appConfig.authenticatedEntryPath}
+                to={getEntryPath(isAdmin)}
                 className="side-nav-header flex flex-col justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

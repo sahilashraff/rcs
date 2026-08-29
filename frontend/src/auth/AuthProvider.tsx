@@ -1,6 +1,6 @@
 import { useEffect, useRef, useImperativeHandle, useState } from 'react'
 import AuthContext from './AuthContext'
-import appConfig from '@/configs/app.config'
+import getEntryPath from '@/utils/getEntryPath'
 import { useSessionUser, useToken } from '@/store/authStore'
 import {
     apiSignIn,
@@ -79,10 +79,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         const search = window.location.search
         const params = new URLSearchParams(search)
         const redirectUrl = params.get(REDIRECT_URL_KEY)
-        const isAdmin = useSessionUser.getState().user.isAdmin
-        const entryPath = isAdmin
-            ? appConfig.adminEntryPath
-            : appConfig.authenticatedEntryPath
+        const entryPath = getEntryPath(useSessionUser.getState().user.isAdmin)
 
         navigatorRef.current?.navigate(redirectUrl ? redirectUrl : entryPath)
     }
