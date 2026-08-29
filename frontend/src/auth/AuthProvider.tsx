@@ -6,6 +6,7 @@ import {
     apiSignIn,
     apiSignOut,
     apiSignUp,
+    apiVerifyOtp,
     apiGetCurrentUser,
 } from '@/services/AuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
@@ -17,6 +18,7 @@ import type {
     OauthSignInCallbackPayload,
     User,
     Token,
+    VerifyOtp,
 } from '@/@types/auth'
 import type { ReactNode, Ref } from 'react'
 import type { NavigateFunction } from 'react-router'
@@ -127,6 +129,15 @@ function AuthProvider({ children }: AuthProviderProps) {
     const signUp = async (values: SignUpCredential): AuthResult => {
         try {
             const resp = await apiSignUp(values)
+            if (resp && 'requiresVerification' in resp) {
+                navigatorRef.current?.navigate(
+                    `/otp-verification?userId=${resp.userId}`,
+                )
+                return {
+                    status: 'success',
+                    message: '',
+                }
+            }
             if (resp) {
                 handleSignIn({ accessToken: resp.token }, resp.user)
                 redirect()
@@ -138,6 +149,30 @@ function AuthProvider({ children }: AuthProviderProps) {
             return {
                 status: 'failed',
                 message: 'Unable to sign up',
+            }
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        } catch (errors: any) {
+            return {
+                status: 'failed',
+                message: errors?.response?.data?.message || errors.toString(),
+            }
+        }
+    }
+
+    const verifyOtp = async (values: VerifyOtp): AuthResult => {
+        try {
+            const resp = await apiVerifyOtp(values)
+            if (resp) {
+                handleSignIn({ accessToken: resp.token }, resp.user)
+                redirect()
+                return {
+                    status: 'success',
+                    message: '',
+                }
+            }
+            return {
+                status: 'failed',
+                message: 'Unable to verify code',
             }
             // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         } catch (errors: any) {
@@ -172,6 +207,7 @@ function AuthProvider({ children }: AuthProviderProps) {
                 user,
                 signIn,
                 signUp,
+                verifyOtp,
                 signOut,
                 oAuthSignIn,
             }}
