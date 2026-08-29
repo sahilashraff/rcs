@@ -68,7 +68,7 @@ const CarrierAgentCard = ({ carrierAgent, onTransition }: CarrierAgentCardProps)
                             External ID: {carrierAgent.carrier_external_id}
                         </div>
                     )}
-                    {carrierAgent.rejection_reason && (
+                    {carrierAgent.status === 'rejected' && carrierAgent.rejection_reason && (
                         <div className="text-xs text-red-500 mt-0.5">
                             Rejected: {carrierAgent.rejection_reason}
                         </div>

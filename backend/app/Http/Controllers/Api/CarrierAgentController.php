@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\CarrierAgent;
 use App\Support\CarrierAgentTransitioner;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
@@ -14,8 +15,16 @@ class CarrierAgentController extends Controller
 {
     public function store(Request $request, Agent $agent)
     {
+        $os = $request->input('os', 'android');
+
         $data = $request->validate([
-            'carrier_id' => ['required', 'exists:carriers,id'],
+            'carrier_id' => [
+                'required',
+                'exists:carriers,id',
+                Rule::unique('carrier_agents')->where(fn ($query) => $query
+                    ->where('agent_id', $agent->id)
+                    ->where('os', $os)),
+            ],
             'os' => ['sometimes', 'in:android,ios'],
         ]);
 

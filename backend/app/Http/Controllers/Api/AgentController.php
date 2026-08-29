@@ -10,7 +10,7 @@ class AgentController extends Controller
 {
     public function index()
     {
-        $agents = Agent::with('carrierAgents.carrier', 'tenant')->get();
+        $agents = Agent::with('carrierAgents', 'tenant')->get();
 
         $data = $agents->map(fn (Agent $agent) => [
             'id' => $agent->id,
