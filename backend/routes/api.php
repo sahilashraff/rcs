@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminSettingController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CarrierAgentController;
@@ -43,5 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/agents/{agent}', [AgentController::class, 'show']);
         Route::post('/admin/agents/{agent}/carrier-agents', [CarrierAgentController::class, 'store']);
         Route::post('/admin/carrier-agents/{carrierAgent}/transition', [CarrierAgentController::class, 'transition']);
+        Route::get('/admin/settings', [AdminSettingController::class, 'index']);
+        Route::put('/admin/settings', [AdminSettingController::class, 'update']);
     });
 });
