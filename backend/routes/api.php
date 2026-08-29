@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CarrierAgentController;
 use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
 use App\Http\Controllers\Api\PingController;
@@ -29,5 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/carriers', [CarrierController::class, 'index']);
         Route::post('/admin/carriers', [CarrierController::class, 'store']);
         Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
+        Route::get('/admin/agents', [AgentController::class, 'index']);
+        Route::post('/admin/agents', [AgentController::class, 'store']);
+        Route::get('/admin/agents/{agent}', [AgentController::class, 'show']);
+        Route::post('/admin/agents/{agent}/carrier-agents', [CarrierAgentController::class, 'store']);
+        Route::post('/admin/carrier-agents/{carrierAgent}/transition', [CarrierAgentController::class, 'transition']);
     });
 });
