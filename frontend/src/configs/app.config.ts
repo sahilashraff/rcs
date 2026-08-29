@@ -1,6 +1,7 @@
 export type AppConfig = {
     apiPrefix: string
     authenticatedEntryPath: string
+    adminEntryPath: string
     unAuthenticatedEntryPath: string
     locale: string
     accessTokenPersistStrategy: 'localStorage' | 'sessionStorage' | 'cookies'
@@ -11,6 +12,7 @@ export type AppConfig = {
 const appConfig: AppConfig = {
     apiPrefix: '/api',
     authenticatedEntryPath: '/home',
+    adminEntryPath: '/admin',
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     accessTokenPersistStrategy: 'localStorage',
