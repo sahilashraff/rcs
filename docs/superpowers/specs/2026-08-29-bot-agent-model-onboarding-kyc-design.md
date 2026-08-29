@@ -116,16 +116,22 @@ those 6 to actually create.
 ### Frontend
 
 - **Admin Agents list** (`views/AdminAgents/`) — the "Create Agent" button
-  and its tenant-picker dialog are removed. Becomes a read-only,
-  filterable list across all tenants' Agent rows (the existing
-  `AgentListTable`/`AgentListTableTools` components stay, only the create
-  action is dropped).
-- **Admin Agent Detail** (`views/AdminAgentDetail/`) and its route are
-  **removed** as a standalone page. Its content (the
-  `CarrierAgentCard`-driven transition-action UI) relocates to a new
-  Tenant Detail page built in B2 — navigation should go
-  User/Tenant → their Agents directly, matching the corrected data model,
-  not through a separate Agent-as-object page.
+  and its tenant-picker dialog are removed. Becomes the **single global
+  page** for every tenant's Agent rows platform-wide: a table (Tenant,
+  Carrier, OS, Status columns, the existing `AgentListTable`/
+  `AgentListTableTools` components as the base) with the same lifecycle
+  action buttons `CarrierAgentCard` already renders per status
+  (Submit/Approve/Reject/Suspend/Reinstate/Terminate) now inline per row.
+  This is a deliberate choice: routine bot management (checking status,
+  driving a registration through its lifecycle) should never require
+  drilling into a specific tenant — one table, act right there. Drilling
+  into a tenant is reserved for the one moment that genuinely needs
+  tenant-specific context: reviewing a brand-new onboarding request
+  (B2), where the KYC data and carrier/OS selection matter together.
+- **Admin Agent Detail** (`views/AdminAgentDetail/`) and its route, and
+  the standalone `CarrierAgentCard` component, are **removed** — their
+  transition-button logic moves inline into the Agents list rows
+  described above.
 - **Tenant-side read-only Agents page** (`views/Agents/`) — unchanged in
   shape, consumes the flattened API response (each Agent row already
   carries its own `carrier_id`/`os` directly — no more nested
@@ -229,10 +235,10 @@ resubmit.
 A new onboarding-requests list + detail page. List: tenant name, status,
 submitted date. Detail: every submitted field, document previews/
 downloads, an Approve action (carrier/OS multi-select) and a Reject action
-(reason field). This detail page is also where B1's relocated
-Agent-management UI (the `CarrierAgentCard`-driven transition actions)
-lives once a tenant is approved — the one place Admin manages a given
-tenant's whole bot lifecycle end to end.
+(reason field). This page's job ends once a request is decided — it is
+**not** where ongoing bot management happens; once Agent rows exist,
+Admin manages them from the global Agents list (B1), never by returning
+here.
 
 ## Verification
 
