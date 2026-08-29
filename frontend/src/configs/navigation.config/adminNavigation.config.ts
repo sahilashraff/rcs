@@ -22,6 +22,16 @@ const adminNavigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [],
     },
+    {
+        key: 'admin.carriers',
+        path: '/admin/carriers',
+        title: 'Carriers',
+        translateKey: 'nav.adminCarriers',
+        icon: 'singleMenu',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: [],
+        subMenu: [],
+    },
 ]
 
 export default adminNavigationConfig

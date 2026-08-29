@@ -22,4 +22,14 @@ export const adminProtectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'admin.carriers',
+        path: '/admin/carriers',
+        component: lazy(() => import('@/views/AdminCarriers')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]
