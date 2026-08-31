@@ -43,6 +43,16 @@ export const adminProtectedRoutes: Routes = [
         },
     },
     {
+        key: 'admin.onboardingRequests',
+        path: '/admin/onboarding-requests',
+        component: lazy(() => import('@/views/AdminOnboardingRequests')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
         key: 'admin.settings',
         path: '/admin/settings',
         component: lazy(() => import('@/views/AdminSettings')),
