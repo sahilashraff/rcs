@@ -26,6 +26,7 @@ const FIELD_GROUPS: { title: string; fields: [string, keyof OnboardingRequestDet
             ['PAN', 'pan'],
             ['CIN', 'cin'],
             ['Udyam Registration Number', 'udyam_registration_number'],
+            ['Account Transaction Type', 'account_transaction_type'],
             ['Address', 'company_address'],
             ['Phone', 'company_phone'],
             ['Email', 'company_email'],
@@ -53,6 +54,7 @@ const FIELD_GROUPS: { title: string; fields: [string, keyof OnboardingRequestDet
         fields: [
             ['Terms of Use URL', 'terms_of_use_url'],
             ['Privacy Policy URL', 'privacy_policy_url'],
+            ['Content Languages', 'rcs_content_languages'],
             ['Opt-in URL', 'rcs_opt_in_url'],
         ],
     },

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\OnboardingRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -57,23 +58,25 @@ class AdminOnboardingRequestController extends Controller
             ]);
         }
 
-        $tenant = $onboardingRequest->tenant;
-        $tenant->brand_name = $onboardingRequest->rcs_display_name;
-        $tenant->description = $onboardingRequest->rcs_description;
-        $tenant->save();
+        DB::transaction(function () use ($request, $onboardingRequest, $data) {
+            $tenant = $onboardingRequest->tenant;
+            $tenant->brand_name = $onboardingRequest->rcs_display_name;
+            $tenant->description = $onboardingRequest->rcs_description;
+            $tenant->save();
 
-        foreach ($data['agents'] as $pair) {
-            Agent::create([
-                'tenant_id' => $tenant->id,
-                'carrier_id' => $pair['carrier_id'],
-                'os' => $pair['os'],
-            ]);
-        }
+            foreach ($data['agents'] as $pair) {
+                Agent::create([
+                    'tenant_id' => $tenant->id,
+                    'carrier_id' => $pair['carrier_id'],
+                    'os' => $pair['os'],
+                ]);
+            }
 
-        $onboardingRequest->status = 'approved';
-        $onboardingRequest->reviewed_by = $request->user()->id;
-        $onboardingRequest->reviewed_at = now();
-        $onboardingRequest->save();
+            $onboardingRequest->status = 'approved';
+            $onboardingRequest->reviewed_by = $request->user()->id;
+            $onboardingRequest->reviewed_at = now();
+            $onboardingRequest->save();
+        });
 
         return response()->json(['data' => $onboardingRequest->fresh()]);
     }
