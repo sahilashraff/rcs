@@ -9,6 +9,7 @@ import {
     publicRoutes,
     adminProtectedRoutes,
 } from '@/configs/routes.config'
+import { onboardingProtectedRoutes } from '@/configs/routes.config/onboardingRoutes.config'
 import getEntryPath from '@/utils/getEntryPath'
 import { useAuth } from '@/auth'
 import { Routes, Route, Navigate } from 'react-router'
@@ -23,8 +24,12 @@ type AllRoutesProps = ViewsProps
 
 const AllRoutes = (props: AllRoutesProps) => {
     const { user } = useAuth()
-    const activeRoutes = user.isAdmin ? adminProtectedRoutes : protectedRoutes
-    const entryPath = getEntryPath(user.isAdmin)
+    const activeRoutes = user.isAdmin
+        ? adminProtectedRoutes
+        : user.isUnlocked
+          ? protectedRoutes
+          : onboardingProtectedRoutes
+    const entryPath = getEntryPath(user.isAdmin, user.isUnlocked)
 
     return (
         <Routes>

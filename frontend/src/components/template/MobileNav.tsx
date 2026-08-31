@@ -6,6 +6,7 @@ import { DIR_RTL } from '@/constants/theme.constant'
 import withHeaderItem, { WithHeaderItemProps } from '@/utils/hoc/withHeaderItem'
 import navigationConfig from '@/configs/navigation.config'
 import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
+import onboardingNavigationConfig from '@/configs/navigation.config/onboardingNavigation.config'
 import appConfig from '@/configs/app.config'
 import { useThemeStore } from '@/store/themeStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
@@ -45,9 +46,12 @@ const MobileNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
     const activeNavigationConfig = isAdmin
         ? adminNavigationConfig
-        : navigationConfig
+        : isUnlocked
+          ? navigationConfig
+          : onboardingNavigationConfig
 
     return (
         <>

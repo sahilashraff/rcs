@@ -4,6 +4,7 @@ import { useSessionUser } from '@/store/authStore'
 import appConfig from '@/configs/app.config'
 import navigationConfig from '@/configs/navigation.config'
 import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
+import onboardingNavigationConfig from '@/configs/navigation.config/onboardingNavigation.config'
 
 const HorizontalNav = ({
     translationSetup = appConfig.activeNavTranslation,
@@ -14,9 +15,12 @@ const HorizontalNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
     const activeNavigationConfig = isAdmin
         ? adminNavigationConfig
-        : navigationConfig
+        : isUnlocked
+          ? navigationConfig
+          : onboardingNavigationConfig
 
     return (
         <HorizontalMenuContent

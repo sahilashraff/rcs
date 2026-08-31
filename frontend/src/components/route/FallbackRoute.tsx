@@ -10,7 +10,7 @@ const FallbackRoute = () => {
     const { authenticated, user } = useAuth()
 
     return (
-        <Navigate replace to={ authenticated ? getEntryPath(user.isAdmin) : unAuthenticatedEntryPath } />
+        <Navigate replace to={ authenticated ? getEntryPath(user.isAdmin, user.isUnlocked) : unAuthenticatedEntryPath } />
     )
 }
 

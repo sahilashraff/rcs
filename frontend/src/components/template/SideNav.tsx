@@ -7,6 +7,7 @@ import { useSessionUser } from '@/store/authStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
 import navigationConfig from '@/configs/navigation.config'
 import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
+import onboardingNavigationConfig from '@/configs/navigation.config/onboardingNavigation.config'
 import appConfig from '@/configs/app.config'
 import getEntryPath from '@/utils/getEntryPath'
 import { Link } from 'react-router'
@@ -54,9 +55,12 @@ const SideNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
     const activeNavigationConfig = isAdmin
         ? adminNavigationConfig
-        : navigationConfig
+        : isUnlocked
+          ? navigationConfig
+          : onboardingNavigationConfig
 
     return (
         <div
@@ -69,7 +73,7 @@ const SideNav = ({
             )}
         >
             <Link
-                to={getEntryPath(isAdmin)}
+                to={getEntryPath(isAdmin, isUnlocked)}
                 className="side-nav-header flex flex-col justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

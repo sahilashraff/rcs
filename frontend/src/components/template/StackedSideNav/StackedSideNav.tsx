@@ -13,6 +13,7 @@ import { useRouteKeyStore } from '@/store/routeKeyStore'
 import { useSessionUser } from '@/store/authStore'
 import navigationConfig from '@/configs/navigation.config'
 import adminNavigationConfig from '@/configs/navigation.config/adminNavigation.config'
+import onboardingNavigationConfig from '@/configs/navigation.config/onboardingNavigation.config'
 import appConfig from '@/configs/app.config'
 import isEmpty from 'lodash/isEmpty'
 import useTranslation from '@/utils/hooks/useTranslation'
@@ -39,9 +40,12 @@ const StackedSideNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
     const activeNavigationConfig = isAdmin
         ? adminNavigationConfig
-        : navigationConfig
+        : isUnlocked
+          ? navigationConfig
+          : onboardingNavigationConfig
 
     const { larger } = useResponsive()
 

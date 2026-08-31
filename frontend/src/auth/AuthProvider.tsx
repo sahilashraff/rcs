@@ -81,7 +81,10 @@ function AuthProvider({ children }: AuthProviderProps) {
         const search = window.location.search
         const params = new URLSearchParams(search)
         const redirectUrl = params.get(REDIRECT_URL_KEY)
-        const entryPath = getEntryPath(useSessionUser.getState().user.isAdmin)
+        const entryPath = getEntryPath(
+            useSessionUser.getState().user.isAdmin,
+            useSessionUser.getState().user.isUnlocked,
+        )
 
         navigatorRef.current?.navigate(redirectUrl ? redirectUrl : entryPath)
     }
@@ -105,7 +108,16 @@ function AuthProvider({ children }: AuthProviderProps) {
     const signIn = async (values: SignInCredential): AuthResult => {
         try {
             const resp = await apiSignIn(values)
-            if (resp) {
+            if (resp && 'requiresVerification' in resp) {
+                navigatorRef.current?.navigate(
+                    `/otp-verification?userId=${resp.userId}`,
+                )
+                return {
+                    status: 'success',
+                    message: '',
+                }
+            }
+            if (resp && 'token' in resp) {
                 handleSignIn({ accessToken: resp.token }, resp.user)
                 redirect()
                 return {

@@ -59,6 +59,7 @@ const StackedSideNavMini = (props: StackedSideNavMiniProps) => {
 
     const { includedRouteTree } = useMenuActive(navigationTree, routeKey)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
 
     const handleMenuItemSelect = ({
         key,
@@ -100,7 +101,7 @@ const StackedSideNavMini = (props: StackedSideNavMiniProps) => {
     return (
         <div {...rest}>
             <Link
-                to={getEntryPath(isAdmin)}
+                to={getEntryPath(isAdmin, isUnlocked)}
                 className="stacked-mini-nav-header flex items-center justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

@@ -8,9 +8,10 @@ import type { Mode } from '@/@types/theme'
 const HeaderLogo = ({ mode }: { mode?: Mode }) => {
     const defaultMode = useThemeStore((state) => state.mode)
     const isAdmin = useSessionUser((state) => state.user.isAdmin)
+    const isUnlocked = useSessionUser((state) => state.user.isUnlocked)
 
     return (
-        <Link to={getEntryPath(isAdmin)}>
+        <Link to={getEntryPath(isAdmin, isUnlocked)}>
             <Logo
                 imgClass="max-h-10"
                 mode={mode || defaultMode}
