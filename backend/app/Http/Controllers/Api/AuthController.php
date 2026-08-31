@@ -31,6 +31,19 @@ class AuthController extends Controller
             ]);
         }
 
+        if (
+            ! $user->is_admin
+            && ! $user->phone_verified_at
+            && filter_var(Setting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)
+        ) {
+            $this->issueOtp($user);
+
+            return response()->json([
+                'requiresVerification' => true,
+                'userId' => $user->id,
+            ]);
+        }
+
         $token = $user->createToken('spa')->plainTextToken;
 
         return response()->json([
@@ -239,7 +252,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @return array{userId: string, userName: string, authority: string[], avatar: string, email: string, isAdmin: bool}
+     * @return array{userId: string, userName: string, authority: string[], avatar: string, email: string, isAdmin: bool, isUnlocked: bool}
      */
     private function userPayload(User $user): array
     {
@@ -250,6 +263,8 @@ class AuthController extends Controller
             'avatar' => '',
             'email' => $user->email,
             'isAdmin' => (bool) $user->is_admin,
+            'isUnlocked' => (bool) $user->is_admin
+                || in_array($user->tenant?->derivedStatus(), ['live', 'partially_live'], true),
         ];
     }
 }

@@ -66,5 +66,17 @@ class DatabaseSeeder extends Seeder
             'os' => 'android',
             'status' => 'live',
         ]);
+
+        $lockedTenant = Tenant::create(['name' => "Locked Demo's Account"]);
+
+        $lockedUser = new User([
+            'name' => 'Locked Demo User',
+            'email' => 'locked@rbm.local',
+            'password' => Hash::make('Locked!12345'),
+        ]);
+        $lockedUser->tenant_id = $lockedTenant->id;
+        $lockedUser->is_owner = true;
+        $lockedUser->is_admin = false;
+        $lockedUser->save();
     }
 }
