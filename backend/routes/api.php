@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminOnboardingRequestController;
 use App\Http\Controllers\Api\AdminSettingController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AuthController;
@@ -45,6 +46,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
         Route::get('/admin/agents', [AgentController::class, 'index']);
         Route::post('/admin/agents/{agent}/transition', [CarrierAgentController::class, 'transition']);
+        Route::get('/admin/onboarding-requests', [AdminOnboardingRequestController::class, 'index']);
+        Route::get('/admin/onboarding-requests/{onboardingRequest}', [AdminOnboardingRequestController::class, 'show']);
+        Route::post('/admin/onboarding-requests/{onboardingRequest}/approve', [AdminOnboardingRequestController::class, 'approve']);
+        Route::post('/admin/onboarding-requests/{onboardingRequest}/reject', [AdminOnboardingRequestController::class, 'reject']);
+        Route::get('/admin/onboarding-requests/{onboardingRequest}/documents/{field}', [AdminOnboardingRequestController::class, 'document']);
         Route::get('/admin/settings', [AdminSettingController::class, 'index']);
         Route::put('/admin/settings', [AdminSettingController::class, 'update']);
     });
