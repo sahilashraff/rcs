@@ -3,16 +3,14 @@ export type SignInCredential = {
     password: string
 }
 
-export type SignInResponse = {
-    token: string
-    user: {
-        userId: string
-        userName: string
-        authority: string[]
-        avatar: string
-        email: string
-        isAdmin: boolean
-    }
+export type AuthUser = {
+    userId: string
+    userName: string
+    authority: string[]
+    avatar: string
+    email: string
+    isAdmin: boolean
+    isUnlocked: boolean
 }
 
 export type SignUpCredential = {
@@ -23,12 +21,22 @@ export type SignUpCredential = {
     password: string
 }
 
-export type SignUpResponse =
-    | SignInResponse
-    | { requiresVerification: true; userId: number }
+export type SignInSuccessResponse = {
+    token: string
+    user: AuthUser
+}
+
+export type RequiresVerificationResponse = {
+    requiresVerification: true
+    userId: number
+}
+
+export type SignInResponse = SignInSuccessResponse | RequiresVerificationResponse
+
+export type SignUpResponse = SignInSuccessResponse | RequiresVerificationResponse
 
 export type CurrentUserResponse = {
-    user: SignInResponse['user']
+    user: AuthUser
 }
 
 export type ForgotPassword = {
@@ -64,6 +72,7 @@ export type User = {
     email?: string | null
     authority?: string[]
     isAdmin?: boolean
+    isUnlocked?: boolean
 }
 
 export type Token = {

@@ -41,6 +41,7 @@ const initialState: AuthState = {
         email: '',
         authority: [],
         isAdmin: false,
+        isUnlocked: false,
     },
 }
 
