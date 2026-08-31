@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CarrierAgentController;
 use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
+use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\SubAccountController;
 use App\Http\Controllers\Api\TenantAgentController;
@@ -26,6 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('can:access-feature,"permissions"')->get('/permissions/ping', [PingController::class, 'permissions']);
     Route::middleware('can:access-feature,"agents"')->get('/agents', [TenantAgentController::class, 'index']);
+
+    Route::post('/onboarding', [OnboardingController::class, 'store']);
+    Route::get('/onboarding/mine', [OnboardingController::class, 'mine']);
 
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);
