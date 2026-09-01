@@ -87,6 +87,22 @@ export type PaymentSettings = {
     webhook_secret_set: boolean
 }
 
+export const THEME_SCHEMA_OPTIONS = ['default', 'dark', 'green', 'purple', 'orange'] as const
+
+export type ThemeSchema = (typeof THEME_SCHEMA_OPTIONS)[number]
+
+export const MODE_OPTIONS = [
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+] as const
+
+export type ThemeMode = (typeof MODE_OPTIONS)[number]['value']
+
+export type AppearanceSettings = {
+    default_theme_schema: ThemeSchema
+    default_mode: ThemeMode
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
@@ -97,6 +113,7 @@ export type Settings = {
     pusher: PusherSettings
     ai_provider: AiProviderSettings
     payment: PaymentSettings
+    appearance: AppearanceSettings
 }
 
 export async function apiGetSettings() {
@@ -241,6 +258,14 @@ export type PaymentUpdateFields = {
 export async function apiUpdatePaymentSettings(data: PaymentUpdateFields) {
     return ApiService.fetchDataWithAxios<{ data: PaymentSettings }>({
         url: '/admin/settings/payment',
+        method: 'put',
+        data,
+    })
+}
+
+export async function apiUpdateAppearanceSettings(data: AppearanceSettings) {
+    return ApiService.fetchDataWithAxios<{ data: AppearanceSettings }>({
+        url: '/admin/settings/appearance',
         method: 'put',
         data,
     })

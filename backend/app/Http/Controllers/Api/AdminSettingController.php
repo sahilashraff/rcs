@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AppSetting;
 use App\Models\FileUpload;
+use App\Support\AppearanceSettings;
 use App\Support\BrandingSettings;
 use App\Support\FileUploadService;
 use DateTimeZone;
@@ -26,6 +27,7 @@ class AdminSettingController extends Controller
                 'pusher' => $this->pusherSettings(),
                 'ai_provider' => $this->aiProviderSettings(),
                 'payment' => $this->paymentSettings(),
+                'appearance' => AppearanceSettings::current(),
             ],
         ]);
     }
@@ -356,5 +358,18 @@ class AdminSettingController extends Controller
             'secret_key_set' => (bool) AppSetting::get('payment_secret_key'),
             'webhook_secret_set' => (bool) AppSetting::get('payment_webhook_secret'),
         ];
+    }
+
+    public function updateAppearance(Request $request)
+    {
+        $data = $request->validate([
+            'default_theme_schema' => ['required', Rule::in(AppearanceSettings::THEME_SCHEMAS)],
+            'default_mode' => ['required', Rule::in(AppearanceSettings::MODES)],
+        ]);
+
+        AppSetting::set('appearance_default_theme_schema', $data['default_theme_schema']);
+        AppSetting::set('appearance_default_mode', $data['default_mode']);
+
+        return response()->json(['data' => AppearanceSettings::current()]);
     }
 }

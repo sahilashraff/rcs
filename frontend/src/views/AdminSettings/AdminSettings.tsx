@@ -20,6 +20,7 @@ import LoginAuthSettingsPanel from './components/LoginAuthSettingsPanel'
 import PusherSettingsPanel from './components/PusherSettingsPanel'
 import AiProviderSettingsPanel from './components/AiProviderSettingsPanel'
 import PaymentSettingsPanel from './components/PaymentSettingsPanel'
+import AppearanceSettingsPanel from './components/AppearanceSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -40,6 +41,7 @@ import {
     PiBroadcastDuotone,
     PiSparkleDuotone,
     PiCreditCardDuotone,
+    PiPaletteDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
@@ -55,6 +57,7 @@ type SettingsView =
     | 'pusher'
     | 'ai_provider'
     | 'payment'
+    | 'appearance'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -62,6 +65,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'branding',
         icon: <PiPaintBrushDuotone className="text-xl" />,
         desc: 'Site identity, favicon & logos',
+    },
+    {
+        label: 'Appearance',
+        value: 'appearance',
+        icon: <PiPaletteDuotone className="text-xl" />,
+        desc: 'Default color scheme & mode',
     },
     {
         label: 'Localisation',
@@ -271,6 +280,15 @@ const AdminSettings = () => {
                                     general={settings?.general}
                                     onUpdated={(general) =>
                                         setSettings((prev) => (prev ? { ...prev, general } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'appearance' && (
+                                <AppearanceSettingsPanel
+                                    appearance={settings?.appearance}
+                                    onUpdated={(appearance) =>
+                                        setSettings((prev) => (prev ? { ...prev, appearance } : prev))
                                     }
                                 />
                             )}
