@@ -5,31 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AppSetting;
 use App\Models\FileUpload;
+use App\Support\BrandingSettings;
 use App\Support\FileUploadService;
 use Illuminate\Http\Request;
 
 class AdminSettingController extends Controller
 {
-    /**
-     * The five branding image slots — light/dark mode, each with an
-     * expanded and collapsed variant, matching the theme's two sidebar
-     * states — plus the favicon. Single source of truth for both the
-     * upload validation and the URL-building on read.
-     */
-    public const GENERAL_FILE_FIELDS = [
-        'favicon',
-        'logo_light_expanded',
-        'logo_light_collapsed',
-        'logo_dark_expanded',
-        'logo_dark_collapsed',
-    ];
-
     public function index()
     {
         return response()->json([
             'data' => [
                 'otp_verification_enabled' => filter_var(AppSetting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
-                'general' => $this->generalSettings(),
+                'general' => BrandingSettings::current(),
             ],
         ]);
     }
@@ -67,7 +54,7 @@ class AdminSettingController extends Controller
         AppSetting::set('general_site_name', $data['site_name']);
         AppSetting::set('general_meta_description', $data['meta_description'] ?? '');
 
-        foreach (self::GENERAL_FILE_FIELDS as $field) {
+        foreach (BrandingSettings::FILE_FIELDS as $field) {
             if ($request->hasFile($field)) {
                 $oldId = AppSetting::get("general_{$field}_file_id");
                 $old = $oldId ? FileUpload::find($oldId) : null;
@@ -86,24 +73,6 @@ class AdminSettingController extends Controller
             }
         }
 
-        return response()->json(['data' => $this->generalSettings()]);
-    }
-
-    private function generalSettings(): array
-    {
-        $result = [
-            'site_name' => AppSetting::get('general_site_name'),
-            'meta_description' => AppSetting::get('general_meta_description'),
-        ];
-
-        foreach (self::GENERAL_FILE_FIELDS as $field) {
-            $fileId = AppSetting::get("general_{$field}_file_id");
-            // UUID-named files mean every upload already has a unique URL,
-            // so no cache-busting query param is needed the way the old
-            // fixed-filename storage required.
-            $result[$field . '_url'] = $fileId ? FileUpload::find($fileId)?->url : null;
-        }
-
-        return $result;
+        return response()->json(['data' => BrandingSettings::current()]);
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminOnboardingRequestController;
 use App\Http\Controllers\Api\AdminSettingController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BrandingController;
 use App\Http\Controllers\Api\CarrierAgentController;
 use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
@@ -14,6 +15,8 @@ use App\Http\Controllers\Api\SubAccountController;
 use App\Http\Controllers\Api\TenantAgentController;
 use App\Http\Controllers\Api\TenantController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/branding', [BrandingController::class, 'index']);
 
 Route::post('/sign-in', [AuthController::class, 'signIn']);
 Route::post('/sign-up', [AuthController::class, 'signUp']);
