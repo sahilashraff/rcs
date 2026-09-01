@@ -1,5 +1,6 @@
 import ApiService from './ApiService'
 import type { OnboardingRequestRecord, OnboardingStatus } from './OnboardingService'
+import type { AgentType } from './AgentService'
 
 export type OnboardingRequestSummary = {
     id: number
@@ -29,7 +30,7 @@ export async function apiGetOnboardingRequest(id: number) {
 
 export async function apiApproveOnboardingRequest(
     id: number,
-    agents: { carrier_id: number; os: 'android' | 'ios' }[],
+    agents: { carrier_id: number; os: 'android' | 'ios'; type: AgentType }[],
 ) {
     return ApiService.fetchDataWithAxios<{ data: OnboardingRequestRecord }>({
         url: `/admin/onboarding-requests/${id}/approve`,

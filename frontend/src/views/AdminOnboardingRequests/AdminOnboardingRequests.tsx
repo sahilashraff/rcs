@@ -17,6 +17,7 @@ import type {
     OnboardingRequestSummary,
     OnboardingRequestDetail as OnboardingRequestDetailType,
 } from '@/services/AdminOnboardingService'
+import type { AgentType } from '@/services/AgentService'
 
 const AdminOnboardingRequests = () => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -76,7 +77,7 @@ const AdminOnboardingRequests = () => {
     const handleView = (id: number) => setSearchParams({ id: String(id) })
     const handleBack = () => setSearchParams({})
 
-    const handleApprove = async (agents: { carrier_id: number; os: 'android' | 'ios' }[]) => {
+    const handleApprove = async (agents: { carrier_id: number; os: 'android' | 'ios'; type: AgentType }[]) => {
         if (!detail) return
         await apiApproveOnboardingRequest(detail.id, agents)
         toast.push(

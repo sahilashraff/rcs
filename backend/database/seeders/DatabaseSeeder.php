@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $demoUser->tenant_id = $tenant->id;
         $demoUser->is_owner = true;
         $demoUser->is_admin = false;
+        $demoUser->phone_verified_at = now();
         $demoUser->save();
 
         $admin = new User([
@@ -64,6 +65,7 @@ class DatabaseSeeder extends Seeder
             'tenant_id' => $tenant->id,
             'carrier_id' => Carrier::where('code', 'jio')->first()->id,
             'os' => 'android',
+            'type' => 'multi_use',
             'status' => 'live',
         ]);
 

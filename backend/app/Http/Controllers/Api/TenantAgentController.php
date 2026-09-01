@@ -24,6 +24,7 @@ class TenantAgentController extends Controller
                     'id' => $agent->id,
                     'carrier_name' => $agent->carrier->name,
                     'os' => $agent->os,
+                    'type' => $agent->type,
                     'status' => $agent->status,
                     'rejection_reason' => $agent->rejection_reason,
                 ]),

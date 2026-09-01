@@ -8,7 +8,6 @@ use App\Models\OnboardingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AdminOnboardingRequestController extends Controller
@@ -44,11 +43,10 @@ class AdminOnboardingRequestController extends Controller
             ]);
         }
 
-        $data = $request->validate([
-            'agents' => ['required', 'array', 'min:1'],
-            'agents.*.carrier_id' => ['required', 'integer', 'exists:carriers,id'],
-            'agents.*.os' => ['required', Rule::in(['android', 'ios'])],
-        ]);
+        $data = $request->validate(array_merge(
+            ['agents' => ['required', 'array', 'min:1']],
+            Agent::pairValidationRules('agents.*.'),
+        ));
 
         $pairs = collect($data['agents'])->map(fn ($pair) => $pair['carrier_id'] . ':' . $pair['os']);
 
@@ -69,6 +67,7 @@ class AdminOnboardingRequestController extends Controller
                     'tenant_id' => $tenant->id,
                     'carrier_id' => $pair['carrier_id'],
                     'os' => $pair['os'],
+                    'type' => $pair['type'],
                 ]);
             }
 

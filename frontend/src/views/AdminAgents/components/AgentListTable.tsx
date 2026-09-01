@@ -3,8 +3,12 @@ import Tag from '@/components/ui/Tag'
 import DataTable from '@/components/shared/DataTable'
 import AgentActionsCell from './AgentActionsCell'
 import { getAgentStatusTagClass } from '@/utils/agentStatusTagClass'
+import { AGENT_TYPE_OPTIONS } from '@/services/AgentService'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import type { AgentSummary } from '@/services/AgentService'
+
+const typeLabel = (type: string) =>
+    AGENT_TYPE_OPTIONS.find((opt) => opt.value === type)?.label ?? type
 
 type AgentListTableProps = {
     agents: AgentSummary[]
@@ -14,6 +18,8 @@ type AgentListTableProps = {
         action: string,
         rejectionReason?: string,
     ) => Promise<void>
+    onEdit?: (agent: AgentSummary) => void
+    onDelete?: (agent: AgentSummary) => void
     pagingData: { total: number; pageIndex: number; pageSize: number }
     onPaginationChange: (page: number) => void
     onSelectChange: (size: number) => void
@@ -23,6 +29,8 @@ const AgentListTable = ({
     agents,
     isLoading,
     onTransition,
+    onEdit,
+    onDelete,
     pagingData,
     onPaginationChange,
     onSelectChange,
@@ -56,6 +64,11 @@ const AgentListTable = ({
                 ),
             },
             {
+                header: 'Type',
+                accessorKey: 'type',
+                cell: (props) => typeLabel(props.row.original.type),
+            },
+            {
                 header: 'Status',
                 accessorKey: 'status',
                 cell: (props) => {
@@ -83,11 +96,13 @@ const AgentListTable = ({
                     <AgentActionsCell
                         agent={props.row.original}
                         onTransition={onTransition}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
                     />
                 ),
             },
         ],
-        [onTransition],
+        [onTransition, onEdit, onDelete],
     )
 
     return (

@@ -3,10 +3,12 @@ import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import AgentListTableTools from './components/AgentListTableTools'
 import AgentListTable from './components/AgentListTable'
-import { apiGetAgents, apiTransitionAgent } from '@/services/AgentService'
-import type { AgentSummary } from '@/services/AgentService'
+import EditAgentDialog from './components/EditAgentDialog'
+import { apiGetAgents, apiTransitionAgent, apiUpdateAgent, apiDeleteAgent } from '@/services/AgentService'
+import type { AgentSummary, AgentType } from '@/services/AgentService'
 
 const AdminAgents = () => {
     const [agents, setAgents] = useState<AgentSummary[]>([])
@@ -15,6 +17,8 @@ const AdminAgents = () => {
     const [searchQuery, setSearchQuery] = useState('')
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize, setPageSize] = useState(10)
+    const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null)
+    const [deletingAgent, setDeletingAgent] = useState<AgentSummary | null>(null)
 
     const loadData = useCallback(async () => {
         try {
@@ -94,6 +98,36 @@ const AdminAgents = () => {
         setPageIndex(1)
     }
 
+    const handleEditAgent = async (data: {
+        carrier_id: number
+        os: 'android' | 'ios'
+        type: AgentType
+        carrier_external_id: string | null
+    }) => {
+        if (!editingAgent) return
+        await apiUpdateAgent(editingAgent.id, data)
+        toast.push(<Notification type="success" title="Agent Updated">Agent updated.</Notification>, { placement: 'top-center' })
+        await loadData()
+    }
+
+    const handleDeleteAgent = async () => {
+        if (!deletingAgent) return
+        try {
+            await apiDeleteAgent(deletingAgent.id)
+            toast.push(<Notification type="success" title="Agent Deleted">Agent removed.</Notification>, { placement: 'top-center' })
+            await loadData()
+        } catch (error: any) {
+            toast.push(
+                <Notification type="danger" title="Delete Failed">
+                    {error?.response?.data?.message || 'Could not delete agent.'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setDeletingAgent(null)
+        }
+    }
+
     return (
         <Container>
             <AdaptiveCard>
@@ -112,6 +146,8 @@ const AdminAgents = () => {
                         agents={pageAgents}
                         isLoading={isLoading}
                         onTransition={handleTransition}
+                        onEdit={setEditingAgent}
+                        onDelete={setDeletingAgent}
                         pagingData={{
                             total: filteredAgents.length,
                             pageIndex,
@@ -122,6 +158,23 @@ const AdminAgents = () => {
                     />
                 </div>
             </AdaptiveCard>
+
+            <EditAgentDialog agent={editingAgent} onClose={() => setEditingAgent(null)} onSubmit={handleEditAgent} />
+            <ConfirmDialog
+                isOpen={Boolean(deletingAgent)}
+                type="danger"
+                title="Delete Agent"
+                confirmText="Delete"
+                onClose={() => setDeletingAgent(null)}
+                onRequestClose={() => setDeletingAgent(null)}
+                onCancel={() => setDeletingAgent(null)}
+                onConfirm={handleDeleteAgent}
+            >
+                <p>
+                    Delete the {deletingAgent?.carrier_name} · {deletingAgent?.os} draft registration? This cannot be
+                    undone.
+                </p>
+            </ConfirmDialog>
         </Container>
     )
 }

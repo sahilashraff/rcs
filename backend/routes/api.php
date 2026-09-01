@@ -45,6 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/carriers', [CarrierController::class, 'store']);
         Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
         Route::get('/admin/agents', [AgentController::class, 'index']);
+        Route::post('/admin/tenants/{tenant}/agents', [AgentController::class, 'store']);
+        Route::patch('/admin/agents/{agent}', [AgentController::class, 'update']);
+        Route::delete('/admin/agents/{agent}', [AgentController::class, 'destroy']);
         Route::post('/admin/agents/{agent}/transition', [CarrierAgentController::class, 'transition']);
         Route::get('/admin/onboarding-requests', [AdminOnboardingRequestController::class, 'index']);
         Route::get('/admin/onboarding-requests/{onboardingRequest}', [AdminOnboardingRequestController::class, 'show']);

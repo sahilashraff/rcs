@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Button from '@/components/ui/Button'
 import Tag from '@/components/ui/Tag'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { getAgentStatusTagClass } from '@/utils/agentStatusTagClass'
 import ApproveDialog from './ApproveDialog'
 import RejectDialog from './RejectDialog'
+import AddAgentDialog from './AddAgentDialog'
+import AgentListTable from '@/views/AdminAgents/components/AgentListTable'
+import EditAgentDialog from '@/views/AdminAgents/components/EditAgentDialog'
 import { apiDownloadOnboardingDocument } from '@/services/AdminOnboardingService'
+import {
+    apiGetAgents,
+    apiCreateAgent,
+    apiUpdateAgent,
+    apiDeleteAgent,
+    apiTransitionAgent,
+} from '@/services/AgentService'
 import type { OnboardingRequestDetail as OnboardingRequestDetailType } from '@/services/AdminOnboardingService'
+import type { AgentSummary, AgentType } from '@/services/AgentService'
 
 type OnboardingRequestDetailProps = {
     request: OnboardingRequestDetailType
     onBack: () => void
-    onApprove: (agents: { carrier_id: number; os: 'android' | 'ios' }[]) => Promise<void>
+    onApprove: (agents: { carrier_id: number; os: 'android' | 'ios'; type: AgentType }[]) => Promise<void>
     onReject: (reason: string) => Promise<void>
 }
 
@@ -82,6 +96,77 @@ const DOCUMENT_FIELDS: [string, string][] = [
 const OnboardingRequestDetail = ({ request, onBack, onApprove, onReject }: OnboardingRequestDetailProps) => {
     const [approveOpen, setApproveOpen] = useState(false)
     const [rejectOpen, setRejectOpen] = useState(false)
+    const [agents, setAgents] = useState<AgentSummary[]>([])
+    const [agentsLoading, setAgentsLoading] = useState(false)
+    const [addAgentOpen, setAddAgentOpen] = useState(false)
+    const [editingAgent, setEditingAgent] = useState<AgentSummary | null>(null)
+    const [deletingAgent, setDeletingAgent] = useState<AgentSummary | null>(null)
+
+    const loadAgents = useCallback(async () => {
+        setAgentsLoading(true)
+        try {
+            const resp = await apiGetAgents(request.tenant_id)
+            setAgents(resp.data || [])
+        } finally {
+            setAgentsLoading(false)
+        }
+    }, [request.tenant_id])
+
+    useEffect(() => {
+        if (request.status === 'approved') {
+            loadAgents()
+        }
+    }, [request.status, loadAgents])
+
+    const handleTransition = async (agentId: number, action: string, rejectionReason?: string) => {
+        try {
+            await apiTransitionAgent(agentId, action, rejectionReason)
+            await loadAgents()
+        } catch (error: any) {
+            toast.push(
+                <Notification type="danger" title="Transition Failed">
+                    {error?.response?.data?.message || 'Could not update status.'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        }
+    }
+
+    const handleAddAgent = async (data: { carrier_id: number; os: 'android' | 'ios'; type: AgentType }) => {
+        await apiCreateAgent(request.tenant_id, data)
+        toast.push(<Notification type="success" title="Agent Added">Agent created.</Notification>, { placement: 'top-center' })
+        await loadAgents()
+    }
+
+    const handleEditAgent = async (data: {
+        carrier_id: number
+        os: 'android' | 'ios'
+        type: AgentType
+        carrier_external_id: string | null
+    }) => {
+        if (!editingAgent) return
+        await apiUpdateAgent(editingAgent.id, data)
+        toast.push(<Notification type="success" title="Agent Updated">Agent updated.</Notification>, { placement: 'top-center' })
+        await loadAgents()
+    }
+
+    const handleDeleteAgent = async () => {
+        if (!deletingAgent) return
+        try {
+            await apiDeleteAgent(deletingAgent.id)
+            toast.push(<Notification type="success" title="Agent Deleted">Agent removed.</Notification>, { placement: 'top-center' })
+            await loadAgents()
+        } catch (error: any) {
+            toast.push(
+                <Notification type="danger" title="Delete Failed">
+                    {error?.response?.data?.message || 'Could not delete agent.'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setDeletingAgent(null)
+        }
+    }
 
     const viewDocument = async (field: string) => {
         const blob = await apiDownloadOnboardingDocument(request.id, field)
@@ -142,8 +227,46 @@ const OnboardingRequestDetail = ({ request, onBack, onApprove, onReject }: Onboa
                 </div>
             )}
 
+            {request.status === 'approved' && (
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center justify-between mb-2">
+                        <h5>Agents</h5>
+                        <Button size="sm" variant="solid" onClick={() => setAddAgentOpen(true)}>
+                            Add Agent
+                        </Button>
+                    </div>
+                    <AgentListTable
+                        agents={agents}
+                        isLoading={agentsLoading}
+                        onTransition={handleTransition}
+                        onEdit={setEditingAgent}
+                        onDelete={setDeletingAgent}
+                        pagingData={{ total: agents.length, pageIndex: 1, pageSize: agents.length || 10 }}
+                        onPaginationChange={() => {}}
+                        onSelectChange={() => {}}
+                    />
+                </div>
+            )}
+
             <ApproveDialog isOpen={approveOpen} onClose={() => setApproveOpen(false)} onSubmit={onApprove} />
             <RejectDialog isOpen={rejectOpen} onClose={() => setRejectOpen(false)} onSubmit={onReject} />
+            <AddAgentDialog isOpen={addAgentOpen} onClose={() => setAddAgentOpen(false)} onSubmit={handleAddAgent} />
+            <EditAgentDialog agent={editingAgent} onClose={() => setEditingAgent(null)} onSubmit={handleEditAgent} />
+            <ConfirmDialog
+                isOpen={Boolean(deletingAgent)}
+                type="danger"
+                title="Delete Agent"
+                confirmText="Delete"
+                onClose={() => setDeletingAgent(null)}
+                onRequestClose={() => setDeletingAgent(null)}
+                onCancel={() => setDeletingAgent(null)}
+                onConfirm={handleDeleteAgent}
+            >
+                <p>
+                    Delete the {deletingAgent?.carrier_name} · {deletingAgent?.os} draft registration? This cannot be
+                    undone.
+                </p>
+            </ConfirmDialog>
         </div>
     )
 }

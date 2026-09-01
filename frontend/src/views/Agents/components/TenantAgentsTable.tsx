@@ -2,8 +2,12 @@ import { useMemo } from 'react'
 import Tag from '@/components/ui/Tag'
 import DataTable from '@/components/shared/DataTable'
 import { getAgentStatusTagClass } from '@/utils/agentStatusTagClass'
+import { AGENT_TYPE_OPTIONS } from '@/services/AgentService'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import type { TenantAgentEntry } from '@/services/TenantAgentService'
+
+const typeLabel = (type: string) =>
+    AGENT_TYPE_OPTIONS.find((opt) => opt.value === type)?.label ?? type
 
 type TenantAgentsTableProps = {
     agents: TenantAgentEntry[]
@@ -23,6 +27,11 @@ const TenantAgentsTable = ({ agents, isLoading }: TenantAgentsTableProps) => {
                 cell: (props) => (
                     <span className="capitalize">{props.row.original.os}</span>
                 ),
+            },
+            {
+                header: 'Type',
+                accessorKey: 'type',
+                cell: (props) => typeLabel(props.row.original.type),
             },
             {
                 header: 'Status',

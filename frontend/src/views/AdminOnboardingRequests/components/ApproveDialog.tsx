@@ -2,21 +2,24 @@ import { useEffect, useState } from 'react'
 import Dialog from '@/components/ui/Dialog'
 import Button from '@/components/ui/Button'
 import Checkbox from '@/components/ui/Checkbox'
+import Select from '@/components/ui/Select'
 import Alert from '@/components/ui/Alert'
 import { apiGetCarriers } from '@/services/CarrierService'
 import type { Carrier } from '@/services/CarrierService'
+import { AGENT_TYPE_OPTIONS } from '@/services/AgentService'
+import type { AgentType } from '@/services/AgentService'
 
 type ApproveDialogProps = {
     isOpen: boolean
     onClose: () => void
-    onSubmit: (agents: { carrier_id: number; os: 'android' | 'ios' }[]) => Promise<void>
+    onSubmit: (agents: { carrier_id: number; os: 'android' | 'ios'; type: AgentType }[]) => Promise<void>
 }
 
 const OS_OPTIONS: ('android' | 'ios')[] = ['android', 'ios']
 
 const ApproveDialog = ({ isOpen, onClose, onSubmit }: ApproveDialogProps) => {
     const [carriers, setCarriers] = useState<Carrier[]>([])
-    const [selected, setSelected] = useState<Set<string>>(new Set())
+    const [selected, setSelected] = useState<Map<string, AgentType | undefined>>(new Map())
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -28,16 +31,20 @@ const ApproveDialog = ({ isOpen, onClose, onSubmit }: ApproveDialogProps) => {
 
     const toggle = (key: string) => {
         setSelected((prev) => {
-            const next = new Set(prev)
+            const next = new Map(prev)
             if (next.has(key)) next.delete(key)
-            else next.add(key)
+            else next.set(key, undefined)
             return next
         })
     }
 
+    const setType = (key: string, type: AgentType) => {
+        setSelected((prev) => new Map(prev).set(key, type))
+    }
+
     const handleClose = () => {
         if (!isSubmitting) {
-            setSelected(new Set())
+            setSelected(new Map())
             setErrorMessage(null)
             onClose()
         }
@@ -49,9 +56,13 @@ const ApproveDialog = ({ isOpen, onClose, onSubmit }: ApproveDialogProps) => {
             setErrorMessage('Select at least one carrier/OS combination.')
             return
         }
-        const agents = Array.from(selected).map((key) => {
+        if (Array.from(selected.values()).some((type) => !type)) {
+            setErrorMessage('Choose a type for every selected carrier/OS combination.')
+            return
+        }
+        const agents = Array.from(selected.entries()).map(([key, type]) => {
             const [carrierId, os] = key.split(':')
-            return { carrier_id: Number(carrierId), os: os as 'android' | 'ios' }
+            return { carrier_id: Number(carrierId), os: os as 'android' | 'ios', type: type as AgentType }
         })
         try {
             setIsSubmitting(true)
@@ -65,7 +76,7 @@ const ApproveDialog = ({ isOpen, onClose, onSubmit }: ApproveDialogProps) => {
     }
 
     return (
-        <Dialog isOpen={isOpen} onClose={handleClose} onRequestClose={handleClose} width={480}>
+        <Dialog isOpen={isOpen} onClose={handleClose} onRequestClose={handleClose} width={560}>
             <h4 className="font-bold text-lg heading-text mb-4">Approve — Select Carrier/OS Registrations</h4>
             {errorMessage && (
                 <Alert type="danger" showIcon className="mb-4 text-xs">
@@ -73,19 +84,32 @@ const ApproveDialog = ({ isOpen, onClose, onSubmit }: ApproveDialogProps) => {
                 </Alert>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
                     {carriers.flatMap((carrier) =>
                         OS_OPTIONS.map((os) => {
                             const key = `${carrier.id}:${os}`
+                            const isSelected = selected.has(key)
                             return (
-                                <Checkbox
-                                    key={key}
-                                    checked={selected.has(key)}
-                                    onChange={() => toggle(key)}
-                                    disabled={isSubmitting}
-                                >
-                                    {carrier.name} · {os}
-                                </Checkbox>
+                                <div key={key} className="flex items-center gap-3">
+                                    <Checkbox
+                                        checked={isSelected}
+                                        onChange={() => toggle(key)}
+                                        disabled={isSubmitting}
+                                    >
+                                        {carrier.name} · {os}
+                                    </Checkbox>
+                                    {isSelected && (
+                                        <Select
+                                            className="w-44"
+                                            size="sm"
+                                            placeholder="Type"
+                                            options={AGENT_TYPE_OPTIONS}
+                                            value={AGENT_TYPE_OPTIONS.find((opt) => opt.value === selected.get(key))}
+                                            onChange={(option) => option && setType(key, option.value)}
+                                            isDisabled={isSubmitting}
+                                        />
+                                    )}
+                                </div>
                             )
                         }),
                     )}

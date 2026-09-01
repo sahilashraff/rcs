@@ -9,6 +9,8 @@ type AgentActionsCellProps = {
         action: string,
         rejectionReason?: string,
     ) => Promise<void>
+    onEdit?: (agent: AgentSummary) => void
+    onDelete?: (agent: AgentSummary) => void
 }
 
 const STATIC_ACTIONS_BY_STATUS: Record<string, { action: string; label: string }[]> = {
@@ -26,7 +28,7 @@ const STATIC_ACTIONS_BY_STATUS: Record<string, { action: string; label: string }
     terminated: [],
 }
 
-const AgentActionsCell = ({ agent, onTransition }: AgentActionsCellProps) => {
+const AgentActionsCell = ({ agent, onTransition, onEdit, onDelete }: AgentActionsCellProps) => {
     const [pendingAction, setPendingAction] = useState<string | null>(null)
 
     // Reinstate is legal only when suspended_by === 'admin' — computed
@@ -57,12 +59,24 @@ const AgentActionsCell = ({ agent, onTransition }: AgentActionsCellProps) => {
         }
     }
 
-    if (actions.length === 0) {
+    const showEditDelete = agent.status === 'draft' && (onEdit || onDelete)
+
+    if (actions.length === 0 && !showEditDelete) {
         return <span className="text-xs text-gray-400">No actions</span>
     }
 
     return (
         <div className="flex items-center justify-end gap-2">
+            {showEditDelete && onEdit && (
+                <Button size="sm" variant="default" onClick={() => onEdit(agent)}>
+                    Edit
+                </Button>
+            )}
+            {showEditDelete && onDelete && (
+                <Button size="sm" variant="default" onClick={() => onDelete(agent)}>
+                    Delete
+                </Button>
+            )}
             {actions.map(({ action, label }) => (
                 <Button
                     key={action}
