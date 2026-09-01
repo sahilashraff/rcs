@@ -71,5 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/settings/notification-sound', [AdminSettingController::class, 'updateNotificationSound']);
         Route::put('/admin/settings/login-auth', [AdminSettingController::class, 'updateLoginAuth']);
         Route::put('/admin/settings/pusher', [AdminSettingController::class, 'updatePusher']);
+        Route::put('/admin/settings/ai-provider', [AdminSettingController::class, 'updateAiProvider']);
     });
 });

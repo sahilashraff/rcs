@@ -53,6 +53,23 @@ export type PusherSettings = {
     cluster: string
 }
 
+export const AI_PROVIDER_OPTIONS = [
+    { value: 'anthropic', label: 'Anthropic' },
+    { value: 'openai', label: 'OpenAI' },
+    { value: 'google', label: 'Google' },
+    { value: 'azure_openai', label: 'Azure OpenAI' },
+    { value: 'custom', label: 'Custom (OpenAI-compatible)' },
+] as const
+
+export type AiProvider = (typeof AI_PROVIDER_OPTIONS)[number]['value']
+
+export type AiProviderSettings = {
+    enabled: boolean
+    provider: AiProvider
+    api_key_set: boolean
+    default_model: string
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
@@ -61,6 +78,7 @@ export type Settings = {
     notification_sound: NotificationSoundSettings
     login_auth: LoginAuthSettings
     pusher: PusherSettings
+    ai_provider: AiProviderSettings
 }
 
 export async function apiGetSettings() {
@@ -174,6 +192,21 @@ export type PusherUpdateFields = {
 export async function apiUpdatePusherSettings(data: PusherUpdateFields) {
     return ApiService.fetchDataWithAxios<{ data: PusherSettings }>({
         url: '/admin/settings/pusher',
+        method: 'put',
+        data,
+    })
+}
+
+export type AiProviderUpdateFields = {
+    enabled: boolean
+    provider: AiProvider
+    api_key?: string
+    default_model?: string
+}
+
+export async function apiUpdateAiProviderSettings(data: AiProviderUpdateFields) {
+    return ApiService.fetchDataWithAxios<{ data: AiProviderSettings }>({
+        url: '/admin/settings/ai-provider',
         method: 'put',
         data,
     })

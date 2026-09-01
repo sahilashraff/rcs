@@ -18,6 +18,7 @@ import FileManagerSettingsPanel from './components/FileManagerSettingsPanel'
 import NotificationSoundSettingsPanel from './components/NotificationSoundSettingsPanel'
 import LoginAuthSettingsPanel from './components/LoginAuthSettingsPanel'
 import PusherSettingsPanel from './components/PusherSettingsPanel'
+import AiProviderSettingsPanel from './components/AiProviderSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -36,6 +37,7 @@ import {
     PiSpeakerHighDuotone,
     PiFingerprintDuotone,
     PiBroadcastDuotone,
+    PiSparkleDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
@@ -49,6 +51,7 @@ type SettingsView =
     | 'notification_sound'
     | 'login_auth'
     | 'pusher'
+    | 'ai_provider'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -86,6 +89,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'pusher',
         icon: <PiBroadcastDuotone className="text-xl" />,
         desc: 'Realtime chat connection',
+    },
+    {
+        label: 'AI Provider',
+        value: 'ai_provider',
+        icon: <PiSparkleDuotone className="text-xl" />,
+        desc: 'LLM provider & API key',
     },
     {
         label: 'Security & Auth',
@@ -298,6 +307,15 @@ const AdminSettings = () => {
                                     pusher={settings?.pusher}
                                     onUpdated={(pusher) =>
                                         setSettings((prev) => (prev ? { ...prev, pusher } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'ai_provider' && (
+                                <AiProviderSettingsPanel
+                                    aiProvider={settings?.ai_provider}
+                                    onUpdated={(ai_provider) =>
+                                        setSettings((prev) => (prev ? { ...prev, ai_provider } : prev))
                                     }
                                 />
                             )}

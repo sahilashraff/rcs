@@ -24,6 +24,7 @@ class AdminSettingController extends Controller
                 'notification_sound' => $this->notificationSoundSettings(),
                 'login_auth' => $this->loginAuthSettings(),
                 'pusher' => $this->pusherSettings(),
+                'ai_provider' => $this->aiProviderSettings(),
             ],
         ]);
     }
@@ -279,6 +280,43 @@ class AdminSettingController extends Controller
             'key' => AppSetting::get('pusher_key', ''),
             'secret_set' => (bool) AppSetting::get('pusher_secret'),
             'cluster' => AppSetting::get('pusher_cluster', ''),
+        ];
+    }
+
+    /**
+     * The small set of providers this admin panel offers a slot for —
+     * not an exhaustive list, just what's realistic to wire up. "custom"
+     * covers any OpenAI-compatible endpoint that isn't one of these.
+     */
+    public const AI_PROVIDERS = ['anthropic', 'openai', 'google', 'azure_openai', 'custom'];
+
+    public function updateAiProvider(Request $request)
+    {
+        $data = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'provider' => ['required', Rule::in(self::AI_PROVIDERS)],
+            'api_key' => ['nullable', 'string', 'max:500'],
+            'default_model' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        AppSetting::set('ai_provider_enabled', $data['enabled'] ? '1' : '0');
+        AppSetting::set('ai_provider_provider', $data['provider']);
+        AppSetting::set('ai_provider_default_model', $data['default_model'] ?? '');
+
+        if (! empty($data['api_key'])) {
+            AppSetting::set('ai_provider_api_key', $data['api_key']);
+        }
+
+        return response()->json(['data' => $this->aiProviderSettings()]);
+    }
+
+    private function aiProviderSettings(): array
+    {
+        return [
+            'enabled' => filter_var(AppSetting::get('ai_provider_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'provider' => AppSetting::get('ai_provider_provider', 'anthropic'),
+            'api_key_set' => (bool) AppSetting::get('ai_provider_api_key'),
+            'default_model' => AppSetting::get('ai_provider_default_model', ''),
         ];
     }
 }
