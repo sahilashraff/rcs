@@ -2,6 +2,7 @@ import Container from '@/components/shared/Container'
 import classNames from '@/utils/classNames'
 import { APP_NAME } from '@/constants/app.constant'
 import { PAGE_CONTAINER_GUTTER_X } from '@/constants/theme.constant'
+import { useBrandingStore } from '@/store/brandingStore'
 
 export type FooterPageContainerType = 'gutterless' | 'contained'
 
@@ -11,11 +12,13 @@ type FooterProps = {
 }
 
 const FooterContent = () => {
+    const siteName = useBrandingStore((state) => state.branding?.site_name) || APP_NAME
+
     return (
         <div className="flex items-center justify-between flex-auto w-full">
             <span>
                 Copyright &copy; {`${new Date().getFullYear()}`}{' '}
-                <span className="font-semibold">{`${APP_NAME}`}</span> All
+                <span className="font-semibold">{siteName}</span> All
                 rights reserved.
             </span>
             <div className="">

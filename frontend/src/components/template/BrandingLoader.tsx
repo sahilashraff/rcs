@@ -3,32 +3,21 @@ import { apiGetBranding } from '@/services/BrandingService'
 import { useBrandingStore } from '@/store/brandingStore'
 
 /**
- * Fetches real branding once on app boot — before sign-in, so the
- * sign-in/sign-up pages show it too — and applies the parts that live
- * outside React's tree (document title, favicon link).
+ * Fetches branding once on app boot and populates the Zustand store
+ * so React components (Logo, Footer, etc.) can read logos / site name.
+ *
+ * DOM-level branding (document title, favicon, meta description) is
+ * handled by the inline bootstrap script in index.html — which fires
+ * before React even loads — so we don't touch the DOM here.
  */
 const BrandingLoader = () => {
     const setBranding = useBrandingStore((state) => state.setBranding)
 
     useEffect(() => {
         apiGetBranding()
-            .then((resp) => {
-                const branding = resp.data
-                setBranding(branding)
-
-                if (branding.site_name) {
-                    document.title = branding.site_name
-                }
-
-                if (branding.favicon_url) {
-                    const link =
-                        document.querySelector<HTMLLinkElement>("link[rel~='icon']") ||
-                        document.head.appendChild(Object.assign(document.createElement('link'), { rel: 'icon' }))
-                    link.href = branding.favicon_url
-                }
-            })
+            .then((resp) => setBranding(resp.data))
             .catch(() => {
-                // Branding is cosmetic — fall back to the bundled defaults silently.
+                // Branding is cosmetic — fall back to bundled defaults silently.
             })
     }, [setBranding])
 
@@ -36,3 +25,5 @@ const BrandingLoader = () => {
 }
 
 export default BrandingLoader
+
+
