@@ -16,6 +16,7 @@ import GeneralSettingsPanel from './components/GeneralSettingsPanel'
 import LocalisationSettingsPanel from './components/LocalisationSettingsPanel'
 import FileManagerSettingsPanel from './components/FileManagerSettingsPanel'
 import NotificationSoundSettingsPanel from './components/NotificationSoundSettingsPanel'
+import LoginAuthSettingsPanel from './components/LoginAuthSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -32,6 +33,7 @@ import {
     PiCoinsDuotone,
     PiFolderOpenDuotone,
     PiSpeakerHighDuotone,
+    PiFingerprintDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
@@ -43,6 +45,7 @@ type SettingsView =
     | 'localisation'
     | 'file_manager'
     | 'notification_sound'
+    | 'login_auth'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -68,6 +71,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'notification_sound',
         icon: <PiSpeakerHighDuotone className="text-xl" />,
         desc: 'Chat notification sound',
+    },
+    {
+        label: 'Login & Auth',
+        value: 'login_auth',
+        icon: <PiFingerprintDuotone className="text-xl" />,
+        desc: 'Social sign-in, reCAPTCHA & sign-up restriction',
     },
     {
         label: 'Security & Auth',
@@ -262,6 +271,15 @@ const AdminSettings = () => {
                                     notificationSound={settings?.notification_sound}
                                     onUpdated={(notification_sound) =>
                                         setSettings((prev) => (prev ? { ...prev, notification_sound } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'login_auth' && (
+                                <LoginAuthSettingsPanel
+                                    loginAuth={settings?.login_auth}
+                                    onUpdated={(login_auth) =>
+                                        setSettings((prev) => (prev ? { ...prev, login_auth } : prev))
                                     }
                                 />
                             )}

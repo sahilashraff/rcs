@@ -32,12 +32,26 @@ export type NotificationSoundSettings = {
     sound_url: string | null
 }
 
+export type LoginAuthSettings = {
+    google_oauth_enabled: boolean
+    google_client_id: string
+    google_client_secret_set: boolean
+    github_oauth_enabled: boolean
+    github_client_id: string
+    github_client_secret_set: boolean
+    recaptcha_enabled: boolean
+    recaptcha_site_key: string
+    recaptcha_secret_key_set: boolean
+    signup_allowed_countries: string[]
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
     localisation: LocalisationSettings
     file_manager: FileManagerSettings
     notification_sound: NotificationSoundSettings
+    login_auth: LoginAuthSettings
 }
 
 export async function apiGetSettings() {
@@ -116,5 +130,26 @@ export async function apiUpdateNotificationSoundSettings(enabled: boolean, sound
         url: '/admin/settings/notification-sound',
         method: 'post',
         data: formData,
+    })
+}
+
+export type LoginAuthUpdateFields = {
+    google_oauth_enabled: boolean
+    google_client_id?: string
+    google_client_secret?: string
+    github_oauth_enabled: boolean
+    github_client_id?: string
+    github_client_secret?: string
+    recaptcha_enabled: boolean
+    recaptcha_site_key?: string
+    recaptcha_secret_key?: string
+    signup_allowed_countries: string[]
+}
+
+export async function apiUpdateLoginAuthSettings(data: LoginAuthUpdateFields) {
+    return ApiService.fetchDataWithAxios<{ data: LoginAuthSettings }>({
+        url: '/admin/settings/login-auth',
+        method: 'put',
+        data,
     })
 }

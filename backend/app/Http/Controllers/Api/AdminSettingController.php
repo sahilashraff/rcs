@@ -22,6 +22,7 @@ class AdminSettingController extends Controller
                 'localisation' => $this->localisationSettings(),
                 'file_manager' => $this->fileManagerSettings(),
                 'notification_sound' => $this->notificationSoundSettings(),
+                'login_auth' => $this->loginAuthSettings(),
             ],
         ]);
     }
@@ -175,6 +176,70 @@ class AdminSettingController extends Controller
         return [
             'enabled' => filter_var(AppSetting::get('notification_sound_enabled', '1'), FILTER_VALIDATE_BOOLEAN),
             'sound_url' => $fileId ? FileUpload::find($fileId)?->url : null,
+        ];
+    }
+
+    public function updateLoginAuth(Request $request)
+    {
+        $data = $request->validate([
+            'google_oauth_enabled' => ['required', 'boolean'],
+            'google_client_id' => ['nullable', 'string', 'max:255'],
+            'google_client_secret' => ['nullable', 'string', 'max:255'],
+            'github_oauth_enabled' => ['required', 'boolean'],
+            'github_client_id' => ['nullable', 'string', 'max:255'],
+            'github_client_secret' => ['nullable', 'string', 'max:255'],
+            'recaptcha_enabled' => ['required', 'boolean'],
+            'recaptcha_site_key' => ['nullable', 'string', 'max:255'],
+            'recaptcha_secret_key' => ['nullable', 'string', 'max:255'],
+            // Format-only validation (2 uppercase letters) rather than
+            // checking against a canonical ISO-3166 country list — a
+            // second hardcoded list is exactly the kind of drift that
+            // caused the Asia/Calcutta timezone bug. Empty = no
+            // restriction, every country allowed.
+            'signup_allowed_countries' => ['array'],
+            'signup_allowed_countries.*' => ['string', 'regex:/^[A-Z]{2}$/'],
+        ]);
+
+        AppSetting::set('login_auth_google_oauth_enabled', $data['google_oauth_enabled'] ? '1' : '0');
+        AppSetting::set('login_auth_google_client_id', $data['google_client_id'] ?? '');
+        AppSetting::set('login_auth_github_oauth_enabled', $data['github_oauth_enabled'] ? '1' : '0');
+        AppSetting::set('login_auth_github_client_id', $data['github_client_id'] ?? '');
+        AppSetting::set('login_auth_recaptcha_enabled', $data['recaptcha_enabled'] ? '1' : '0');
+        AppSetting::set('login_auth_recaptcha_site_key', $data['recaptcha_site_key'] ?? '');
+        AppSetting::set('login_auth_signup_allowed_countries', implode(',', $data['signup_allowed_countries'] ?? []));
+
+        // Secrets: only overwrite when a new value is actually submitted —
+        // a blank field means "leave the stored secret unchanged", never
+        // "clear it". Mirrors the file-upload replace-only-if-provided
+        // pattern used elsewhere in this controller.
+        if (! empty($data['google_client_secret'])) {
+            AppSetting::set('login_auth_google_client_secret', $data['google_client_secret']);
+        }
+        if (! empty($data['github_client_secret'])) {
+            AppSetting::set('login_auth_github_client_secret', $data['github_client_secret']);
+        }
+        if (! empty($data['recaptcha_secret_key'])) {
+            AppSetting::set('login_auth_recaptcha_secret_key', $data['recaptcha_secret_key']);
+        }
+
+        return response()->json(['data' => $this->loginAuthSettings()]);
+    }
+
+    private function loginAuthSettings(): array
+    {
+        $countries = AppSetting::get('login_auth_signup_allowed_countries', '');
+
+        return [
+            'google_oauth_enabled' => filter_var(AppSetting::get('login_auth_google_oauth_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'google_client_id' => AppSetting::get('login_auth_google_client_id', ''),
+            'google_client_secret_set' => (bool) AppSetting::get('login_auth_google_client_secret'),
+            'github_oauth_enabled' => filter_var(AppSetting::get('login_auth_github_oauth_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'github_client_id' => AppSetting::get('login_auth_github_client_id', ''),
+            'github_client_secret_set' => (bool) AppSetting::get('login_auth_github_client_secret'),
+            'recaptcha_enabled' => filter_var(AppSetting::get('login_auth_recaptcha_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'recaptcha_site_key' => AppSetting::get('login_auth_recaptcha_site_key', ''),
+            'recaptcha_secret_key_set' => (bool) AppSetting::get('login_auth_recaptcha_secret_key'),
+            'signup_allowed_countries' => array_filter(explode(',', $countries)),
         ];
     }
 }
