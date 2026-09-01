@@ -19,7 +19,11 @@ type ForgotPasswordFormSchema = {
 }
 
 const validationSchema = z.object({
-    email: z.string().email().min(5),
+    email: z
+        .string({ error: 'Please enter your email' })
+        .trim()
+        .min(1, { message: 'Please enter your email' })
+        .email({ message: 'Please enter a valid email' }),
 })
 
 const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
@@ -33,6 +37,9 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
         control,
     } = useForm<ForgotPasswordFormSchema>({
         resolver: zodResolver(validationSchema),
+        defaultValues: {
+            email: '',
+        },
     })
 
     const onForgotPassword = async (values: ForgotPasswordFormSchema) => {

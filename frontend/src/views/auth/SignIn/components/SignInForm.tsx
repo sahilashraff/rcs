@@ -24,10 +24,11 @@ type SignInFormSchema = {
 
 const validationSchema = z.object({
     email: z
-        .string()
+        .string({ error: 'Please enter your email' })
+        .trim()
         .min(1, { message: 'Please enter your email' }),
     password: z
-        .string()
+        .string({ error: 'Please enter your password' })
         .min(1, { message: 'Please enter your password' }),
 })
 
@@ -42,8 +43,8 @@ const SignInForm = (props: SignInFormProps) => {
         control,
     } = useForm<SignInFormSchema>({
         defaultValues: {
-            email: 'admin-01@ecme.com',
-            password: '123Qwe',
+            email: '',
+            password: '',
         },
         resolver: zodResolver(validationSchema),
     })

@@ -20,7 +20,10 @@ type OtpVerificationFormSchema = {
 const OTP_LENGTH = 6
 
 const validationSchema = z.object({
-    otp: z.string().min(OTP_LENGTH, { message: 'Please enter a valid OTP' }),
+    otp: z
+        .string({ error: 'Please enter the verification code' })
+        .min(1, { message: 'Please enter the verification code' })
+        .min(OTP_LENGTH, { message: 'Please enter a valid 6-digit OTP' }),
 })
 
 const OtpVerificationForm = (props: OtpVerificationFormProps) => {
@@ -36,6 +39,9 @@ const OtpVerificationForm = (props: OtpVerificationFormProps) => {
         control,
     } = useForm<OtpVerificationFormSchema>({
         resolver: zodResolver(validationSchema),
+        defaultValues: {
+            otp: '',
+        },
     })
 
     const onOtpSubmit = async (values: OtpVerificationFormSchema) => {

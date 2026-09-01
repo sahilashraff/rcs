@@ -23,11 +23,16 @@ type ResetPasswordFormSchema = {
 
 const validationSchema = z
     .object({
-        newPassword: z.string().min(1, 'Please enter your password'),
-        confirmPassword: z.string().min(1, 'Confirm Password Required'),
+        newPassword: z
+            .string({ error: 'Please enter your password' })
+            .min(1, { message: 'Please enter your password' })
+            .min(8, { message: 'Password must be at least 8 characters' }),
+        confirmPassword: z
+            .string({ error: 'Please confirm your password' })
+            .min(1, { message: 'Please confirm your password' }),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
-        message: 'Your passwords do not match',
+        message: 'Passwords do not match',
         path: ['confirmPassword'],
     })
 
@@ -50,6 +55,10 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
         control,
     } = useForm<ResetPasswordFormSchema>({
         resolver: zodResolver(validationSchema),
+        defaultValues: {
+            newPassword: '',
+            confirmPassword: '',
+        },
     })
 
     const onResetPassword = async (values: ResetPasswordFormSchema) => {

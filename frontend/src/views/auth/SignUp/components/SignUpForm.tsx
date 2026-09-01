@@ -3,6 +3,7 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Steps from '@/components/ui/Steps'
 import { FormItem, Form } from '@/components/ui/Form'
+import PasswordInput from '@/components/shared/PasswordInput'
 import { useAuth } from '@/auth'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -25,21 +26,34 @@ type SignUpFormSchema = {
 
 const validationSchema = z
     .object({
-        name: z.string().min(1, { message: 'Please enter your name' }),
-        email: z.email({ message: 'Please enter a valid email' }),
-        country_code: z.string().min(1, { message: 'Required' }),
+        name: z
+            .string({ error: 'Please enter your full name' })
+            .trim()
+            .min(1, { message: 'Please enter your full name' }),
+        email: z
+            .string({ error: 'Please enter your email' })
+            .trim()
+            .min(1, { message: 'Please enter your email' })
+            .email({ message: 'Please enter a valid email' }),
+        country_code: z
+            .string({ error: 'Country code is required' })
+            .trim()
+            .min(1, { message: 'Country code is required' }),
         phone: z
-            .string()
+            .string({ error: 'Please enter your phone number' })
+            .trim()
+            .min(1, { message: 'Please enter your phone number' })
             .min(6, { message: 'Please enter a valid phone number' }),
         password: z
-            .string()
+            .string({ error: 'Please enter your password' })
+            .min(1, { message: 'Please enter your password' })
             .min(8, { message: 'Password must be at least 8 characters' }),
         confirmPassword: z
-            .string()
-            .min(1, { message: 'Confirm Password Required' }),
+            .string({ error: 'Please confirm your password' })
+            .min(1, { message: 'Please confirm your password' }),
     })
     .refine((data) => data.password === data.confirmPassword, {
-        message: 'Password not match',
+        message: 'Passwords do not match',
         path: ['confirmPassword'],
     })
 
@@ -63,7 +77,14 @@ const SignUpForm = (props: SignUpFormProps) => {
         control,
     } = useForm<SignUpFormSchema>({
         resolver: zodResolver(validationSchema),
-        defaultValues: { country_code: '+91' },
+        defaultValues: {
+            name: '',
+            email: '',
+            country_code: '+91',
+            phone: '',
+            password: '',
+            confirmPassword: '',
+        },
     })
 
     const handleNext = async () => {
@@ -204,8 +225,7 @@ const SignUpForm = (props: SignUpFormProps) => {
                                 name="password"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="password"
+                                    <PasswordInput
                                         autoComplete="off"
                                         placeholder="Password"
                                         {...field}
@@ -222,8 +242,7 @@ const SignUpForm = (props: SignUpFormProps) => {
                                 name="confirmPassword"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="password"
+                                    <PasswordInput
                                         autoComplete="off"
                                         placeholder="Confirm Password"
                                         {...field}
