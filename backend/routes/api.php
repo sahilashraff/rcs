@@ -68,5 +68,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/settings/general', [AdminSettingController::class, 'updateGeneral']);
         Route::put('/admin/settings/localisation', [AdminSettingController::class, 'updateLocalisation']);
         Route::put('/admin/settings/file-manager', [AdminSettingController::class, 'updateFileManager']);
+        Route::post('/admin/settings/notification-sound', [AdminSettingController::class, 'updateNotificationSound']);
     });
 });

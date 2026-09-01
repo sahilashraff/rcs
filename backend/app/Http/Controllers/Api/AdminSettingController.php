@@ -21,6 +21,7 @@ class AdminSettingController extends Controller
                 'general' => BrandingSettings::current(),
                 'localisation' => $this->localisationSettings(),
                 'file_manager' => $this->fileManagerSettings(),
+                'notification_sound' => $this->notificationSoundSettings(),
             ],
         ]);
     }
@@ -135,6 +136,45 @@ class AdminSettingController extends Controller
         return [
             'allowed_extensions' => array_filter(explode(',', $extensions)),
             'max_storage_mb' => (int) AppSetting::get('file_manager_max_storage_mb', 1024),
+        ];
+    }
+
+    public function updateNotificationSound(Request $request, FileUploadService $fileUploadService)
+    {
+        $data = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'sound' => ['nullable', 'file', 'mimes:mp3,wav,ogg', 'max:1024'],
+        ]);
+
+        AppSetting::set('notification_sound_enabled', $data['enabled'] ? '1' : '0');
+
+        if ($request->hasFile('sound')) {
+            $oldId = AppSetting::get('notification_sound_file_id');
+            $old = $oldId ? FileUpload::find($oldId) : null;
+
+            $new = $fileUploadService->replace(
+                $old,
+                $request->file('sound'),
+                'notification_sound',
+                'sound',
+                'public',
+                $request->user()->id,
+                null,
+            );
+
+            AppSetting::set('notification_sound_file_id', $new->id);
+        }
+
+        return response()->json(['data' => $this->notificationSoundSettings()]);
+    }
+
+    private function notificationSoundSettings(): array
+    {
+        $fileId = AppSetting::get('notification_sound_file_id');
+
+        return [
+            'enabled' => filter_var(AppSetting::get('notification_sound_enabled', '1'), FILTER_VALIDATE_BOOLEAN),
+            'sound_url' => $fileId ? FileUpload::find($fileId)?->url : null,
         ];
     }
 }

@@ -15,6 +15,7 @@ import type { Settings } from '@/services/SettingsService'
 import GeneralSettingsPanel from './components/GeneralSettingsPanel'
 import LocalisationSettingsPanel from './components/LocalisationSettingsPanel'
 import FileManagerSettingsPanel from './components/FileManagerSettingsPanel'
+import NotificationSoundSettingsPanel from './components/NotificationSoundSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -30,10 +31,18 @@ import {
     PiPaintBrushDuotone,
     PiCoinsDuotone,
     PiFolderOpenDuotone,
+    PiSpeakerHighDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
-type SettingsView = 'security' | 'rcs' | 'general' | 'branding' | 'localisation' | 'file_manager'
+type SettingsView =
+    | 'security'
+    | 'rcs'
+    | 'general'
+    | 'branding'
+    | 'localisation'
+    | 'file_manager'
+    | 'notification_sound'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -53,6 +62,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'file_manager',
         icon: <PiFolderOpenDuotone className="text-xl" />,
         desc: 'Allowed extensions & storage limits',
+    },
+    {
+        label: 'Notification Sound',
+        value: 'notification_sound',
+        icon: <PiSpeakerHighDuotone className="text-xl" />,
+        desc: 'Chat notification sound',
     },
     {
         label: 'Security & Auth',
@@ -238,6 +253,15 @@ const AdminSettings = () => {
                                     fileManager={settings?.file_manager}
                                     onUpdated={(file_manager) =>
                                         setSettings((prev) => (prev ? { ...prev, file_manager } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'notification_sound' && (
+                                <NotificationSoundSettingsPanel
+                                    notificationSound={settings?.notification_sound}
+                                    onUpdated={(notification_sound) =>
+                                        setSettings((prev) => (prev ? { ...prev, notification_sound } : prev))
                                     }
                                 />
                             )}

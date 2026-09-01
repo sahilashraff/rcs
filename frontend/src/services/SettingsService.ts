@@ -27,11 +27,17 @@ export type FileManagerSettings = {
     max_storage_mb: number
 }
 
+export type NotificationSoundSettings = {
+    enabled: boolean
+    sound_url: string | null
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
     localisation: LocalisationSettings
     file_manager: FileManagerSettings
+    notification_sound: NotificationSoundSettings
 }
 
 export async function apiGetSettings() {
@@ -98,5 +104,17 @@ export async function apiUpdateFileManagerSettings(data: FileManagerSettings) {
         url: '/admin/settings/file-manager',
         method: 'put',
         data,
+    })
+}
+
+export async function apiUpdateNotificationSoundSettings(enabled: boolean, sound?: File) {
+    const formData = new FormData()
+    formData.append('enabled', enabled ? '1' : '0')
+    if (sound) formData.append('sound', sound)
+
+    return ApiService.fetchDataWithAxios<{ data: NotificationSoundSettings }, FormData>({
+        url: '/admin/settings/notification-sound',
+        method: 'post',
+        data: formData,
     })
 }
