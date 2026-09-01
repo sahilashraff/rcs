@@ -23,4 +23,12 @@ return [
         'sidebar' => true,
         'public' => false,
     ],
+    [
+        'key' => 'files',
+        'label' => 'Files',
+        'route' => '/files',
+        'sidebar' => true,
+        'public' => false,
+    ],
 ];
+

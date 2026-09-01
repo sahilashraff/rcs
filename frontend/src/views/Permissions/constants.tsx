@@ -64,6 +64,13 @@ export const FEATURE_METADATA: Record<
         colorClass: 'text-pink-500 bg-pink-50 dark:bg-pink-950/40 border-pink-200 dark:border-pink-800',
         badgeClass: 'bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 border-pink-200 dark:border-pink-800',
     },
+    files: {
+        label: 'File Manager',
+        description: 'Upload, organize, preview media assets, documents, and monitor storage quota.',
+        icon: <TbFiles className="text-xl text-blue-500" />,
+        colorClass: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800',
+        badgeClass: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+    },
     settings: {
         label: 'Tenant Settings & API Keys',
         description: 'Webhooks, API keys, security preferences, and whitelabel configurations.',
@@ -72,6 +79,7 @@ export const FEATURE_METADATA: Record<
         badgeClass: 'bg-slate-50 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400 border-slate-200 dark:border-slate-800',
     },
 }
+
 
 export const getFeatureMetadata = (key: string, fallbackLabel?: string) => {
     if (FEATURE_METADATA[key]) {

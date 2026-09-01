@@ -11,6 +11,7 @@ import {
     PiBookBookmarkDuotone,
     PiBagSimpleDuotone,
     PiFileTextDuotone,
+    PiFolderOpenDuotone,
 } from 'react-icons/pi'
 import type { JSX } from 'react'
 
@@ -22,6 +23,7 @@ const navigationIcon: NavigationIcons = {
     tenants: <PiBuildingsDuotone />,
     carriers: <PiBroadcastDuotone />,
     agents: <PiRobotDuotone />,
+    files: <PiFolderOpenDuotone />,
     onboardingRequests: <PiFileTextDuotone />,
     onboarding: <PiFileTextDuotone />,
     team: <PiUsersDuotone />,
@@ -34,3 +36,4 @@ const navigationIcon: NavigationIcons = {
 }
 
 export default navigationIcon
+

@@ -1,7 +1,11 @@
 import { lazy } from 'react'
 import authRoute from './authRoute'
 import othersRoute from './othersRoute'
-import { FEATURE_PERMISSIONS, FEATURE_AGENTS } from '@/constants/feature.constant'
+import {
+    FEATURE_PERMISSIONS,
+    FEATURE_AGENTS,
+    FEATURE_FILES,
+} from '@/constants/feature.constant'
 import type { Routes } from '@/@types/routes'
 
 export const publicRoutes: Routes = [...authRoute]
@@ -12,6 +16,16 @@ export const protectedRoutes: Routes = [
         path: '/home',
         component: lazy(() => import('@/views/Home')),
         authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
+    {
+        key: FEATURE_FILES,
+        path: '/files',
+        component: lazy(() => import('@/views/FileManager')),
+        authority: [FEATURE_FILES],
         meta: {
             pageBackgroundType: 'plain',
             pageContainerType: 'contained',
@@ -37,6 +51,7 @@ export const protectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+
     {
         key: 'account',
         path: '/account',

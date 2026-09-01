@@ -5,3 +5,5 @@
 export const FEATURE_DASHBOARD = 'dashboard'
 export const FEATURE_PERMISSIONS = 'permissions'
 export const FEATURE_AGENTS = 'agents'
+export const FEATURE_FILES = 'files'
+
