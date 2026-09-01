@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import Container from '@/components/shared/Container'
-import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import Switcher from '@/components/ui/Switcher'
-import Tag from '@/components/ui/Tag'
+import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
+import CarrierListActionTools from './components/CarrierListActionTools'
+import CarrierListTableTools from './components/CarrierListTableTools'
+import CarrierListTable from './components/CarrierListTable'
 import CreateCarrierDialog from './components/CreateCarrierDialog'
 import { apiGetCarriers, apiCreateCarrier, apiUpdateCarrier } from '@/services/CarrierService'
 import type { Carrier } from '@/services/CarrierService'
@@ -15,6 +15,8 @@ const AdminCarriers = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [togglingId, setTogglingId] = useState<number | null>(null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [statusFilter, setStatusFilter] = useState('all')
 
     const loadData = useCallback(async () => {
         try {
@@ -65,55 +67,57 @@ const AdminCarriers = () => {
         }
     }
 
+    const filteredCarriers = useMemo(() => {
+        return carriers.filter((carrier) => {
+            const query = searchQuery.toLowerCase().trim()
+            const matchesQuery =
+                !query ||
+                carrier.name.toLowerCase().includes(query) ||
+                carrier.code.toLowerCase().includes(query) ||
+                carrier.country.toLowerCase().includes(query)
+
+            if (!matchesQuery) return false
+
+            if (statusFilter === 'active') return carrier.is_active
+            if (statusFilter === 'inactive') return !carrier.is_active
+
+            return true
+        })
+    }, [carriers, searchQuery, statusFilter])
+
     return (
-        <Container className="py-2">
-            <div className="flex items-center justify-between mb-4">
-                <h3>Carriers</h3>
-                <Button variant="solid" onClick={() => setIsCreateOpen(true)}>
-                    Add Carrier
-                </Button>
-            </div>
-            <Card bodyClass="p-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-gray-200 dark:border-gray-700/80 bg-gray-50/75 dark:bg-gray-800/40 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                <th className="py-3 px-6">Code</th>
-                                <th className="py-3 px-6">Name</th>
-                                <th className="py-3 px-6">Country</th>
-                                <th className="py-3 px-6">Active</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700/80">
-                            {!isLoading && carriers.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="py-8 px-6 text-center text-gray-500">
-                                        No carriers yet.
-                                    </td>
-                                </tr>
-                            )}
-                            {carriers.map((carrier) => (
-                                <tr key={carrier.id}>
-                                    <td className="py-3 px-6">
-                                        <Tag>{carrier.code}</Tag>
-                                    </td>
-                                    <td className="py-3 px-6 font-semibold heading-text">
-                                        {carrier.name}
-                                    </td>
-                                    <td className="py-3 px-6">{carrier.country}</td>
-                                    <td className="py-3 px-6">
-                                        <Switcher
-                                            checked={carrier.is_active}
-                                            isLoading={togglingId === carrier.id}
-                                            onChange={() => handleToggleActive(carrier)}
-                                        />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        <Container>
+            <AdaptiveCard>
+                <div className="flex flex-col gap-4">
+                    {/* Header & Primary Action Tools */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <div>
+                            <h3 className="heading-text">Carriers</h3>
+                            <p className="text-gray-500 text-sm mt-0.5">
+                                Configure telecom carriers and network endpoints for RCS agent onboarding.
+                            </p>
+                        </div>
+                        <CarrierListActionTools
+                            onAddCarrier={() => setIsCreateOpen(true)}
+                        />
+                    </div>
+
+                    {/* Table Tools (Debounced Search + Filter) */}
+                    <CarrierListTableTools
+                        onSearchChange={setSearchQuery}
+                        statusFilter={statusFilter}
+                        onStatusFilterChange={setStatusFilter}
+                    />
+
+                    {/* Standard TanStack DataTable */}
+                    <CarrierListTable
+                        carriers={filteredCarriers}
+                        isLoading={isLoading}
+                        togglingId={togglingId}
+                        onToggleActive={handleToggleActive}
+                    />
                 </div>
-            </Card>
+            </AdaptiveCard>
 
             <CreateCarrierDialog
                 isOpen={isCreateOpen}
