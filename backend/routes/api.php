@@ -64,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/onboarding-requests/{onboardingRequest}/reject', [AdminOnboardingRequestController::class, 'reject']);
         Route::get('/admin/settings', [AdminSettingController::class, 'index']);
         Route::put('/admin/settings', [AdminSettingController::class, 'update']);
+        Route::get('/admin/settings/timezones', [AdminSettingController::class, 'timezones']);
         Route::post('/admin/settings/general', [AdminSettingController::class, 'updateGeneral']);
         Route::put('/admin/settings/localisation', [AdminSettingController::class, 'updateLocalisation']);
         Route::put('/admin/settings/file-manager', [AdminSettingController::class, 'updateFileManager']);

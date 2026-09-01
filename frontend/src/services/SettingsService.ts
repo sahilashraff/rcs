@@ -78,6 +78,13 @@ export async function apiUpdateGeneralSettings(
     })
 }
 
+export async function apiGetTimezones() {
+    return ApiService.fetchDataWithAxios<{ data: string[] }>({
+        url: '/admin/settings/timezones',
+        method: 'get',
+    })
+}
+
 export async function apiUpdateLocalisationSettings(data: LocalisationSettings) {
     return ApiService.fetchDataWithAxios<{ data: LocalisationSettings }>({
         url: '/admin/settings/localisation',

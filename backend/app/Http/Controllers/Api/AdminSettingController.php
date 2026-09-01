@@ -80,6 +80,19 @@ class AdminSettingController extends Controller
         return response()->json(['data' => BrandingSettings::current()]);
     }
 
+    /**
+     * The canonical IANA timezone list, sourced from PHP/ICU — the same
+     * source updateLocalisation() validates against. The frontend must
+     * use this instead of the browser's Intl.supportedValuesOf(), which
+     * isn't guaranteed to return canonical names (some ICU versions
+     * return legacy aliases like "Asia/Calcutta" instead of
+     * "Asia/Kolkata", which would then fail validation here).
+     */
+    public function timezones()
+    {
+        return response()->json(['data' => DateTimeZone::listIdentifiers()]);
+    }
+
     public function updateLocalisation(Request $request)
     {
         $data = $request->validate([

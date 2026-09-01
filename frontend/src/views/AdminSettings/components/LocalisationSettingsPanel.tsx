@@ -3,7 +3,7 @@ import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Alert from '@/components/ui/Alert'
 import { FormItem } from '@/components/ui/Form'
-import { apiUpdateLocalisationSettings } from '@/services/SettingsService'
+import { apiUpdateLocalisationSettings, apiGetTimezones } from '@/services/SettingsService'
 import { CURRENCY_OPTIONS } from '@/constants/currency.constant'
 import type { LocalisationSettings } from '@/services/SettingsService'
 
@@ -12,13 +12,10 @@ type LocalisationSettingsPanelProps = {
     onUpdated: (localisation: LocalisationSettings) => void
 }
 
-const TIMEZONE_OPTIONS = (
-    typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : []
-).map((tz) => ({ value: tz, label: tz }))
-
 const LocalisationSettingsPanel = ({ localisation, onUpdated }: LocalisationSettingsPanelProps) => {
     const [currencyCode, setCurrencyCode] = useState('')
     const [timezone, setTimezone] = useState('')
+    const [timezoneOptions, setTimezoneOptions] = useState<{ value: string; label: string }[]>([])
     const [isSaving, setIsSaving] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -27,13 +24,24 @@ const LocalisationSettingsPanel = ({ localisation, onUpdated }: LocalisationSett
         setTimezone(localisation?.timezone ?? '')
     }, [localisation])
 
+    useEffect(() => {
+        // Sourced from the backend's canonical IANA list (PHP/ICU) rather
+        // than the browser's Intl.supportedValuesOf('timeZone') — that
+        // API isn't guaranteed to return canonical names (it can return
+        // legacy aliases like "Asia/Calcutta" instead of "Asia/Kolkata"),
+        // which would then fail the backend's own validation on save.
+        apiGetTimezones().then((resp) => {
+            setTimezoneOptions((resp.data || []).map((tz) => ({ value: tz, label: tz })))
+        })
+    }, [])
+
     const currencyValue = useMemo(
         () => CURRENCY_OPTIONS.find((opt) => opt.value === currencyCode),
         [currencyCode],
     )
     const timezoneValue = useMemo(
-        () => TIMEZONE_OPTIONS.find((opt) => opt.value === timezone),
-        [timezone],
+        () => timezoneOptions.find((opt) => opt.value === timezone),
+        [timezone, timezoneOptions],
     )
 
     const handleSave = async () => {
@@ -78,10 +86,10 @@ const LocalisationSettingsPanel = ({ localisation, onUpdated }: LocalisationSett
             </FormItem>
             <FormItem label="Timezone" className="mb-0">
                 <Select
-                    options={TIMEZONE_OPTIONS}
+                    options={timezoneOptions}
                     value={timezoneValue}
                     onChange={(option) => setTimezone(option?.value ?? '')}
-                    isDisabled={isSaving}
+                    isDisabled={isSaving || timezoneOptions.length === 0}
                 />
             </FormItem>
 
