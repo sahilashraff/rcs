@@ -62,4 +62,14 @@ export const adminProtectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'account',
+        path: '/account',
+        component: lazy(() => import('@/views/AccountSettings')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]

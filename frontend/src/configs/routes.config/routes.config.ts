@@ -37,5 +37,15 @@ export const protectedRoutes: Routes = [
             pageContainerType: 'contained',
         },
     },
+    {
+        key: 'account',
+        path: '/account',
+        component: lazy(() => import('@/views/AccountSettings')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
     ...othersRoute,
 ]

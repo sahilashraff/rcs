@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AdminOnboardingRequestController;
 use App\Http\Controllers\Api\AdminSettingController;
 use App\Http\Controllers\Api\AgentController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Api\BrandingController;
 use App\Http\Controllers\Api\CarrierAgentController;
 use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
+use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FileDownloadController;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\PingController;
@@ -33,10 +35,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('can:access-feature,"permissions"')->get('/permissions/ping', [PingController::class, 'permissions']);
     Route::middleware('can:access-feature,"agents"')->get('/agents', [TenantAgentController::class, 'index']);
 
+    Route::middleware('can:access-feature,"files"')->group(function () {
+        Route::get('/files', [FileController::class, 'index']);
+        Route::post('/files', [FileController::class, 'store']);
+        Route::put('/files/{fileUpload}', [FileController::class, 'update']);
+        Route::delete('/files/{fileUpload}', [FileController::class, 'destroy']);
+        Route::get('/files/storage-usage', [FileController::class, 'storageUsage']);
+    });
+
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::get('/onboarding/mine', [OnboardingController::class, 'mine']);
 
+    Route::get('/account', [AccountController::class, 'show']);
+    Route::post('/account', [AccountController::class, 'update']);
+    Route::put('/account/password', [AccountController::class, 'updatePassword']);
+
     Route::get('/files/{fileUpload}/download', FileDownloadController::class);
+
 
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);

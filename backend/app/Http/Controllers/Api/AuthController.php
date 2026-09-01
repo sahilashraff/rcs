@@ -254,7 +254,7 @@ class AuthController extends Controller
             'userId' => (string) $user->id,
             'userName' => $user->name,
             'authority' => FeatureAccess::grantedKeys($user),
-            'avatar' => '',
+            'avatar' => $user->avatar_url ?? '',
             'email' => $user->email,
             'isAdmin' => (bool) $user->is_admin,
             'isUnlocked' => (bool) $user->is_admin
