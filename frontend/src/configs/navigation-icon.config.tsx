@@ -23,6 +23,7 @@ const navigationIcon: NavigationIcons = {
     carriers: <PiBroadcastDuotone />,
     agents: <PiRobotDuotone />,
     onboardingRequests: <PiFileTextDuotone />,
+    onboarding: <PiFileTextDuotone />,
     team: <PiUsersDuotone />,
     settings: <PiGearDuotone />,
     singleMenu: <PiSquaresFourDuotone />,
