@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import Container from '@/components/shared/Container'
+import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import PermissionsStats from './components/PermissionsStats'
@@ -150,7 +151,6 @@ const Permissions = () => {
     // Filter & Search Logic
     const filteredSubAccounts = useMemo(() => {
         return subAccounts.filter((account) => {
-            // Search query match
             const query = searchQuery.toLowerCase().trim()
             const matchesQuery =
                 !query ||
@@ -159,7 +159,6 @@ const Permissions = () => {
 
             if (!matchesQuery) return false
 
-            // Filter select match
             if (filterValue === 'has_permissions') {
                 return account.permissions && account.permissions.length > 0
             }
@@ -180,7 +179,14 @@ const Permissions = () => {
     }, [subAccounts])
 
     return (
-        <Container className="py-2">
+        <Container>
+            <div className="mb-6">
+                <h3 className="heading-text">Team</h3>
+                <p className="text-gray-500 text-sm mt-1">
+                    Manage team member accounts, sub-accounts, and role-based feature permissions.
+                </p>
+            </div>
+
             {/* Top Stat Summary Cards */}
             <PermissionsStats
                 subAccountsCount={subAccounts.length}
@@ -188,27 +194,31 @@ const Permissions = () => {
                 grantedCount={totalGrantedCount}
             />
 
-            {/* Action Bar with Search & Filters */}
-            <PermissionsActionHeader
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                filterValue={filterValue}
-                onFilterChange={setFilterValue}
-                onOpenCreateDialog={() => setIsCreateOpen(true)}
-                onRefresh={loadData}
-                isLoading={isLoading}
-            />
+            <AdaptiveCard>
+                <div className="flex flex-col gap-4">
+                    {/* Action Bar with Search & Filters */}
+                    <PermissionsActionHeader
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        filterValue={filterValue}
+                        onFilterChange={setFilterValue}
+                        onOpenCreateDialog={() => setIsCreateOpen(true)}
+                        onRefresh={loadData}
+                        isLoading={isLoading}
+                    />
 
-            {/* Sub-Accounts Table */}
-            <SubAccountTable
-                subAccounts={filteredSubAccounts}
-                features={features}
-                togglingUserId={togglingUserId}
-                onTogglePermission={handleTogglePermission}
-                onManageAccess={(account) => setSelectedSubAccount(account)}
-                onOpenCreateDialog={() => setIsCreateOpen(true)}
-                onCopyEmail={handleCopyEmail}
-            />
+                    {/* Sub-Accounts Table */}
+                    <SubAccountTable
+                        subAccounts={filteredSubAccounts}
+                        features={features}
+                        togglingUserId={togglingUserId}
+                        onTogglePermission={handleTogglePermission}
+                        onManageAccess={(account) => setSelectedSubAccount(account)}
+                        onOpenCreateDialog={() => setIsCreateOpen(true)}
+                        onCopyEmail={handleCopyEmail}
+                    />
+                </div>
+            </AdaptiveCard>
 
             {/* Create Sub-Account Modal */}
             <CreateSubAccountDialog
