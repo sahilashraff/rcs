@@ -20,6 +20,7 @@ class AdminSettingController extends Controller
                 'otp_verification_enabled' => filter_var(AppSetting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
                 'general' => BrandingSettings::current(),
                 'localisation' => $this->localisationSettings(),
+                'file_manager' => $this->fileManagerSettings(),
             ],
         ]);
     }
@@ -97,6 +98,30 @@ class AdminSettingController extends Controller
         return [
             'currency_code' => AppSetting::get('localisation_currency_code', 'INR'),
             'timezone' => AppSetting::get('localisation_timezone', 'Asia/Kolkata'),
+        ];
+    }
+
+    public function updateFileManager(Request $request)
+    {
+        $data = $request->validate([
+            'allowed_extensions' => ['required', 'array', 'min:1'],
+            'allowed_extensions.*' => ['string', 'regex:/^[a-zA-Z0-9]+$/', 'max:10'],
+            'max_storage_mb' => ['required', 'integer', 'min:1'],
+        ]);
+
+        AppSetting::set('file_manager_allowed_extensions', implode(',', $data['allowed_extensions']));
+        AppSetting::set('file_manager_max_storage_mb', (string) $data['max_storage_mb']);
+
+        return response()->json(['data' => $this->fileManagerSettings()]);
+    }
+
+    private function fileManagerSettings(): array
+    {
+        $extensions = AppSetting::get('file_manager_allowed_extensions', 'jpg,jpeg,png,pdf,docx');
+
+        return [
+            'allowed_extensions' => array_filter(explode(',', $extensions)),
+            'max_storage_mb' => (int) AppSetting::get('file_manager_max_storage_mb', 1024),
         ];
     }
 }

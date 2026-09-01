@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/tenants', [TenantController::class, 'index']);
         Route::post('/admin/tenants', [TenantController::class, 'store']);
         Route::post('/admin/tenants/{tenant}/send-reset-link', [TenantController::class, 'sendResetLink']);
+        Route::patch('/admin/tenants/{tenant}/storage', [TenantController::class, 'updateStorage']);
         Route::get('/admin/carriers', [CarrierController::class, 'index']);
         Route::post('/admin/carriers', [CarrierController::class, 'store']);
         Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
@@ -65,5 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/settings', [AdminSettingController::class, 'update']);
         Route::post('/admin/settings/general', [AdminSettingController::class, 'updateGeneral']);
         Route::put('/admin/settings/localisation', [AdminSettingController::class, 'updateLocalisation']);
+        Route::put('/admin/settings/file-manager', [AdminSettingController::class, 'updateFileManager']);
     });
 });

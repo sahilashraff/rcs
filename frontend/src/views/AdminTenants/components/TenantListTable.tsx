@@ -9,9 +9,10 @@ type TenantListTableProps = {
     tenants: Tenant[]
     isLoading: boolean
     onSendResetLink: (tenant: Tenant) => void
+    onEditStorage: (tenant: Tenant) => void
 }
 
-const TenantListTable = ({ tenants, isLoading, onSendResetLink }: TenantListTableProps) => {
+const TenantListTable = ({ tenants, isLoading, onSendResetLink, onEditStorage }: TenantListTableProps) => {
     const columns: ColumnDef<Tenant>[] = useMemo(
         () => [
             {
@@ -50,10 +51,20 @@ const TenantListTable = ({ tenants, isLoading, onSendResetLink }: TenantListTabl
                 },
             },
             {
+                header: 'Storage Limit',
+                accessorKey: 'max_storage_mb',
+                cell: (props) => (
+                    <span className="text-sm">{props.row.original.max_storage_mb} MB</span>
+                ),
+            },
+            {
                 header: '',
                 id: 'actions',
                 cell: (props) => (
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="default" onClick={() => onEditStorage(props.row.original)}>
+                            Edit Storage
+                        </Button>
                         <Button size="sm" variant="default" onClick={() => onSendResetLink(props.row.original)}>
                             Send Reset Link
                         </Button>
@@ -61,7 +72,7 @@ const TenantListTable = ({ tenants, isLoading, onSendResetLink }: TenantListTabl
                 ),
             },
         ],
-        [onSendResetLink],
+        [onSendResetLink, onEditStorage],
     )
 
     return (

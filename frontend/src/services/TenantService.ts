@@ -3,6 +3,7 @@ import ApiService from './ApiService'
 export type Tenant = {
     id: number
     name: string
+    max_storage_mb: number
 }
 
 export async function apiGetTenants() {
@@ -35,5 +36,13 @@ export async function apiSendTenantResetLink(tenantId: number) {
     return ApiService.fetchDataWithAxios<{ status: string }>({
         url: `/admin/tenants/${tenantId}/send-reset-link`,
         method: 'post',
+    })
+}
+
+export async function apiUpdateTenantStorage(tenantId: number, maxStorageMb: number) {
+    return ApiService.fetchDataWithAxios<{ data: Tenant }>({
+        url: `/admin/tenants/${tenantId}/storage`,
+        method: 'patch',
+        data: { max_storage_mb: maxStorageMb },
     })
 }

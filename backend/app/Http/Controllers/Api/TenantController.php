@@ -14,7 +14,7 @@ class TenantController extends Controller
 {
     public function index()
     {
-        return response()->json(['data' => Tenant::query()->get(['id', 'name'])]);
+        return response()->json(['data' => Tenant::query()->get(['id', 'name', 'max_storage_mb'])]);
     }
 
     public function store(Request $request)
@@ -50,6 +50,17 @@ class TenantController extends Controller
                 'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
             ],
         ], 201);
+    }
+
+    public function updateStorage(Request $request, Tenant $tenant)
+    {
+        $data = $request->validate([
+            'max_storage_mb' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $tenant->update($data);
+
+        return response()->json(['data' => $tenant->only('id', 'name', 'max_storage_mb')]);
     }
 
     public function sendResetLink(Tenant $tenant)

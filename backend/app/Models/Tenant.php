@@ -12,7 +12,7 @@ class Tenant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'brand_name', 'description'];
+    protected $fillable = ['name', 'brand_name', 'description', 'max_storage_mb'];
 
     protected function casts(): array
     {
@@ -35,14 +35,19 @@ class Tenant extends Model
      * Creates a Tenant and its owning User together — the one place this
      * pairing happens, shared by public self-signup and admin-created
      * accounts, so the two paths can't drift on what "owning a tenant"
-     * means (tenant_id, is_owner, is_admin).
+     * means (tenant_id, is_owner, is_admin, and the storage snapshot).
      */
     public static function createWithOwner(string $tenantName, array $ownerAttributes): User
     {
         $phoneVerifiedAt = $ownerAttributes['phone_verified_at'] ?? null;
         unset($ownerAttributes['phone_verified_at']);
 
-        $tenant = self::create(['name' => $tenantName]);
+        // Snapshot of the file-manager global default at creation time —
+        // not a live fallback, see the max_storage_mb migration.
+        $tenant = self::create([
+            'name' => $tenantName,
+            'max_storage_mb' => (int) AppSetting::get('file_manager_max_storage_mb', 1024),
+        ]);
 
         $user = new User($ownerAttributes);
         $user->tenant_id = $tenant->id;

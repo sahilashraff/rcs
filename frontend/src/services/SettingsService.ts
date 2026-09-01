@@ -22,10 +22,16 @@ export type LocalisationSettings = {
     timezone: string
 }
 
+export type FileManagerSettings = {
+    allowed_extensions: string[]
+    max_storage_mb: number
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
     localisation: LocalisationSettings
+    file_manager: FileManagerSettings
 }
 
 export async function apiGetSettings() {
@@ -75,6 +81,14 @@ export async function apiUpdateGeneralSettings(
 export async function apiUpdateLocalisationSettings(data: LocalisationSettings) {
     return ApiService.fetchDataWithAxios<{ data: LocalisationSettings }>({
         url: '/admin/settings/localisation',
+        method: 'put',
+        data,
+    })
+}
+
+export async function apiUpdateFileManagerSettings(data: FileManagerSettings) {
+    return ApiService.fetchDataWithAxios<{ data: FileManagerSettings }>({
+        url: '/admin/settings/file-manager',
         method: 'put',
         data,
     })

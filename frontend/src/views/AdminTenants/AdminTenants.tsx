@@ -7,7 +7,8 @@ import toast from '@/components/ui/toast'
 import TenantListTableTools from './components/TenantListTableTools'
 import TenantListTable from './components/TenantListTable'
 import CreateTenantDialog from './components/CreateTenantDialog'
-import { apiGetTenants, apiSendTenantResetLink } from '@/services/TenantService'
+import EditStorageDialog from './components/EditStorageDialog'
+import { apiGetTenants, apiSendTenantResetLink, apiUpdateTenantStorage } from '@/services/TenantService'
 import type { Tenant } from '@/services/TenantService'
 
 const AdminTenants = () => {
@@ -15,6 +16,7 @@ const AdminTenants = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
     const [createOpen, setCreateOpen] = useState(false)
+    const [editingStorageTenant, setEditingStorageTenant] = useState<Tenant | null>(null)
 
     const loadTenants = useCallback(() => {
         apiGetTenants()
@@ -53,6 +55,18 @@ const AdminTenants = () => {
         }
     }
 
+    const handleUpdateStorage = async (maxStorageMb: number) => {
+        if (!editingStorageTenant) return
+        await apiUpdateTenantStorage(editingStorageTenant.id, maxStorageMb)
+        toast.push(
+            <Notification type="success" title="Storage Limit Updated">
+                {editingStorageTenant.name} is now limited to {maxStorageMb} MB.
+            </Notification>,
+            { placement: 'top-center' },
+        )
+        loadTenants()
+    }
+
     const filteredTenants = useMemo(() => {
         const query = searchQuery.toLowerCase().trim()
         if (!query) return tenants
@@ -88,6 +102,7 @@ const AdminTenants = () => {
                         tenants={filteredTenants}
                         isLoading={isLoading}
                         onSendResetLink={handleSendResetLink}
+                        onEditStorage={setEditingStorageTenant}
                     />
                 </div>
             </AdaptiveCard>
@@ -96,6 +111,11 @@ const AdminTenants = () => {
                 isOpen={createOpen}
                 onClose={() => setCreateOpen(false)}
                 onCreated={loadTenants}
+            />
+            <EditStorageDialog
+                tenant={editingStorageTenant}
+                onClose={() => setEditingStorageTenant(null)}
+                onSubmit={handleUpdateStorage}
             />
         </Container>
     )

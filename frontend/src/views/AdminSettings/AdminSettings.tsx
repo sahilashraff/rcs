@@ -14,6 +14,7 @@ import { apiGetSettings, apiUpdateSettings } from '@/services/SettingsService'
 import type { Settings } from '@/services/SettingsService'
 import GeneralSettingsPanel from './components/GeneralSettingsPanel'
 import LocalisationSettingsPanel from './components/LocalisationSettingsPanel'
+import FileManagerSettingsPanel from './components/FileManagerSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -28,10 +29,11 @@ import {
     PiListBold,
     PiPaintBrushDuotone,
     PiCoinsDuotone,
+    PiFolderOpenDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
-type SettingsView = 'security' | 'rcs' | 'general' | 'branding' | 'localisation'
+type SettingsView = 'security' | 'rcs' | 'general' | 'branding' | 'localisation' | 'file_manager'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -45,6 +47,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'localisation',
         icon: <PiCoinsDuotone className="text-xl" />,
         desc: 'Currency & timezone',
+    },
+    {
+        label: 'File Manager',
+        value: 'file_manager',
+        icon: <PiFolderOpenDuotone className="text-xl" />,
+        desc: 'Allowed extensions & storage limits',
     },
     {
         label: 'Security & Auth',
@@ -221,6 +229,15 @@ const AdminSettings = () => {
                                     localisation={settings?.localisation}
                                     onUpdated={(localisation) =>
                                         setSettings((prev) => (prev ? { ...prev, localisation } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'file_manager' && (
+                                <FileManagerSettingsPanel
+                                    fileManager={settings?.file_manager}
+                                    onUpdated={(file_manager) =>
+                                        setSettings((prev) => (prev ? { ...prev, file_manager } : prev))
                                     }
                                 />
                             )}
