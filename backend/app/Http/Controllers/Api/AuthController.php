@@ -67,19 +67,13 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8'],
         ]);
 
-        $tenant = Tenant::create(['name' => "{$data['name']}'s Account"]);
-
-        $user = new User([
+        $user = Tenant::createWithOwner("{$data['name']}'s Account", [
             'name' => $data['name'],
             'email' => $data['email'],
             'country_code' => $data['country_code'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
         ]);
-        $user->tenant_id = $tenant->id;
-        $user->is_owner = true;
-        $user->is_admin = false;
-        $user->save();
 
         if (! filter_var(Setting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {
             $token = $user->createToken('spa')->plainTextToken;

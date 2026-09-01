@@ -1,16 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import Container from '@/components/shared/Container'
-import Card from '@/components/ui/Card'
+import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
-import { apiGetTenants } from '@/services/TenantService'
+import TenantListTableTools from './components/TenantListTableTools'
+import TenantListTable from './components/TenantListTable'
+import CreateTenantDialog from './components/CreateTenantDialog'
+import { apiGetTenants, apiSendTenantResetLink } from '@/services/TenantService'
 import type { Tenant } from '@/services/TenantService'
 
 const AdminTenants = () => {
     const [tenants, setTenants] = useState<Tenant[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [createOpen, setCreateOpen] = useState(false)
 
-    useEffect(() => {
+    const loadTenants = useCallback(() => {
         apiGetTenants()
             .then((resp) => setTenants(resp.data || []))
             .catch((error: any) => {
@@ -24,38 +30,73 @@ const AdminTenants = () => {
             .finally(() => setIsLoading(false))
     }, [])
 
+    useEffect(() => {
+        loadTenants()
+    }, [loadTenants])
+
+    const handleSendResetLink = async (tenant: Tenant) => {
+        try {
+            await apiSendTenantResetLink(tenant.id)
+            toast.push(
+                <Notification type="success" title="Reset Link Sent">
+                    A password reset link was sent to {tenant.name}&apos;s owner.
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } catch (error: any) {
+            toast.push(
+                <Notification type="danger" title="Failed to Send">
+                    {error?.response?.data?.message || 'Could not send the reset link.'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        }
+    }
+
+    const filteredTenants = useMemo(() => {
+        const query = searchQuery.toLowerCase().trim()
+        if (!query) return tenants
+        return tenants.filter(
+            (t) =>
+                t.name.toLowerCase().includes(query) ||
+                String(t.id).includes(query),
+        )
+    }, [tenants, searchQuery])
+
     return (
-        <Container className="py-2">
-            <h3 className="mb-4">Tenants</h3>
-            <Card bodyClass="p-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-gray-200 dark:border-gray-700/80 bg-gray-50/75 dark:bg-gray-800/40 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                <th className="py-3 px-6">ID</th>
-                                <th className="py-3 px-6">Name</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700/80">
-                            {!isLoading && tenants.length === 0 && (
-                                <tr>
-                                    <td colSpan={2} className="py-8 px-6 text-center text-gray-500">
-                                        No tenants yet.
-                                    </td>
-                                </tr>
-                            )}
-                            {tenants.map((tenant) => (
-                                <tr key={tenant.id}>
-                                    <td className="py-3 px-6">{tenant.id}</td>
-                                    <td className="py-3 px-6 font-semibold heading-text">
-                                        {tenant.name}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        <Container>
+            <AdaptiveCard>
+                <div className="flex flex-col gap-4">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <div>
+                            <h3 className="heading-text">Tenants</h3>
+                            <p className="text-gray-500 text-sm mt-0.5">
+                                Manage and monitor registered business tenants across the platform.
+                            </p>
+                        </div>
+                        <Button variant="solid" onClick={() => setCreateOpen(true)}>
+                            Create Account
+                        </Button>
+                    </div>
+
+                    {/* Table Tools (Debounced Search) */}
+                    <TenantListTableTools onSearchChange={setSearchQuery} />
+
+                    {/* Standard TanStack DataTable */}
+                    <TenantListTable
+                        tenants={filteredTenants}
+                        isLoading={isLoading}
+                        onSendResetLink={handleSendResetLink}
+                    />
                 </div>
-            </Card>
+            </AdaptiveCard>
+
+            <CreateTenantDialog
+                isOpen={createOpen}
+                onClose={() => setCreateOpen(false)}
+                onCreated={loadTenants}
+            />
         </Container>
     )
 }

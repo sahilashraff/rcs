@@ -26,6 +26,34 @@ class Tenant extends Model
         return $this->hasMany(User::class);
     }
 
+    public function owner(): HasOne
+    {
+        return $this->hasOne(User::class)->where('is_owner', true);
+    }
+
+    /**
+     * Creates a Tenant and its owning User together — the one place this
+     * pairing happens, shared by public self-signup and admin-created
+     * accounts, so the two paths can't drift on what "owning a tenant"
+     * means (tenant_id, is_owner, is_admin).
+     */
+    public static function createWithOwner(string $tenantName, array $ownerAttributes): User
+    {
+        $phoneVerifiedAt = $ownerAttributes['phone_verified_at'] ?? null;
+        unset($ownerAttributes['phone_verified_at']);
+
+        $tenant = self::create(['name' => $tenantName]);
+
+        $user = new User($ownerAttributes);
+        $user->tenant_id = $tenant->id;
+        $user->is_owner = true;
+        $user->is_admin = false;
+        $user->phone_verified_at = $phoneVerifiedAt;
+        $user->save();
+
+        return $user;
+    }
+
     public function agents(): HasMany
     {
         return $this->hasMany(Agent::class);

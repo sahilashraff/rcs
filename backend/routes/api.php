@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('is-admin')->group(function () {
         Route::get('/admin/ping', [PingController::class, 'admin']);
         Route::get('/admin/tenants', [TenantController::class, 'index']);
+        Route::post('/admin/tenants', [TenantController::class, 'store']);
+        Route::post('/admin/tenants/{tenant}/send-reset-link', [TenantController::class, 'sendResetLink']);
         Route::get('/admin/carriers', [CarrierController::class, 'index']);
         Route::post('/admin/carriers', [CarrierController::class, 'store']);
         Route::put('/admin/carriers/{carrier}', [CarrierController::class, 'update']);
