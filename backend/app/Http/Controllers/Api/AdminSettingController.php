@@ -23,6 +23,7 @@ class AdminSettingController extends Controller
                 'file_manager' => $this->fileManagerSettings(),
                 'notification_sound' => $this->notificationSoundSettings(),
                 'login_auth' => $this->loginAuthSettings(),
+                'pusher' => $this->pusherSettings(),
             ],
         ]);
     }
@@ -240,6 +241,44 @@ class AdminSettingController extends Controller
             'recaptcha_site_key' => AppSetting::get('login_auth_recaptcha_site_key', ''),
             'recaptcha_secret_key_set' => (bool) AppSetting::get('login_auth_recaptcha_secret_key'),
             'signup_allowed_countries' => array_filter(explode(',', $countries)),
+        ];
+    }
+
+    public function updatePusher(Request $request)
+    {
+        $data = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'app_id' => ['nullable', 'string', 'max:255'],
+            'key' => ['nullable', 'string', 'max:255'],
+            'secret' => ['nullable', 'string', 'max:255'],
+            // No fixed list of clusters is validated against — Pusher
+            // adds new ones over time (mt1, us2, eu, ap1, ap2, ap3, ap4,
+            // sa1, ...) and a hardcoded list would just go stale.
+            'cluster' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        AppSetting::set('pusher_enabled', $data['enabled'] ? '1' : '0');
+        AppSetting::set('pusher_app_id', $data['app_id'] ?? '');
+        AppSetting::set('pusher_key', $data['key'] ?? '');
+        AppSetting::set('pusher_cluster', $data['cluster'] ?? '');
+
+        // Same replace-only-if-provided rule as every other secret in
+        // this controller: blank means "leave the stored secret alone".
+        if (! empty($data['secret'])) {
+            AppSetting::set('pusher_secret', $data['secret']);
+        }
+
+        return response()->json(['data' => $this->pusherSettings()]);
+    }
+
+    private function pusherSettings(): array
+    {
+        return [
+            'enabled' => filter_var(AppSetting::get('pusher_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'app_id' => AppSetting::get('pusher_app_id', ''),
+            'key' => AppSetting::get('pusher_key', ''),
+            'secret_set' => (bool) AppSetting::get('pusher_secret'),
+            'cluster' => AppSetting::get('pusher_cluster', ''),
         ];
     }
 }

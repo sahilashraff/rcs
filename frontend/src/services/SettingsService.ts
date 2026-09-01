@@ -45,6 +45,14 @@ export type LoginAuthSettings = {
     signup_allowed_countries: string[]
 }
 
+export type PusherSettings = {
+    enabled: boolean
+    app_id: string
+    key: string
+    secret_set: boolean
+    cluster: string
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
@@ -52,6 +60,7 @@ export type Settings = {
     file_manager: FileManagerSettings
     notification_sound: NotificationSoundSettings
     login_auth: LoginAuthSettings
+    pusher: PusherSettings
 }
 
 export async function apiGetSettings() {
@@ -149,6 +158,22 @@ export type LoginAuthUpdateFields = {
 export async function apiUpdateLoginAuthSettings(data: LoginAuthUpdateFields) {
     return ApiService.fetchDataWithAxios<{ data: LoginAuthSettings }>({
         url: '/admin/settings/login-auth',
+        method: 'put',
+        data,
+    })
+}
+
+export type PusherUpdateFields = {
+    enabled: boolean
+    app_id?: string
+    key?: string
+    secret?: string
+    cluster?: string
+}
+
+export async function apiUpdatePusherSettings(data: PusherUpdateFields) {
+    return ApiService.fetchDataWithAxios<{ data: PusherSettings }>({
+        url: '/admin/settings/pusher',
         method: 'put',
         data,
     })

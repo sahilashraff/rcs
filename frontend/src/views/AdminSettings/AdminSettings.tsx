@@ -17,6 +17,7 @@ import LocalisationSettingsPanel from './components/LocalisationSettingsPanel'
 import FileManagerSettingsPanel from './components/FileManagerSettingsPanel'
 import NotificationSoundSettingsPanel from './components/NotificationSoundSettingsPanel'
 import LoginAuthSettingsPanel from './components/LoginAuthSettingsPanel'
+import PusherSettingsPanel from './components/PusherSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -34,6 +35,7 @@ import {
     PiFolderOpenDuotone,
     PiSpeakerHighDuotone,
     PiFingerprintDuotone,
+    PiBroadcastDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
@@ -46,6 +48,7 @@ type SettingsView =
     | 'file_manager'
     | 'notification_sound'
     | 'login_auth'
+    | 'pusher'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -77,6 +80,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'login_auth',
         icon: <PiFingerprintDuotone className="text-xl" />,
         desc: 'Social sign-in, reCAPTCHA & sign-up restriction',
+    },
+    {
+        label: 'Pusher',
+        value: 'pusher',
+        icon: <PiBroadcastDuotone className="text-xl" />,
+        desc: 'Realtime chat connection',
     },
     {
         label: 'Security & Auth',
@@ -280,6 +289,15 @@ const AdminSettings = () => {
                                     loginAuth={settings?.login_auth}
                                     onUpdated={(login_auth) =>
                                         setSettings((prev) => (prev ? { ...prev, login_auth } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'pusher' && (
+                                <PusherSettingsPanel
+                                    pusher={settings?.pusher}
+                                    onUpdated={(pusher) =>
+                                        setSettings((prev) => (prev ? { ...prev, pusher } : prev))
                                     }
                                 />
                             )}
