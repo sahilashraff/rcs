@@ -35,6 +35,10 @@ class FileUploadService
             'original_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
+            // Computed for every upload — cheap, and lets any purpose
+            // detect a duplicate later (see findDuplicate()) without
+            // needing a second pass over existing files.
+            'hash' => hash_file('sha256', $file->getRealPath()),
             'purpose' => $purpose,
             'field' => $field,
             'user_id' => $userId,
@@ -46,6 +50,25 @@ class FileUploadService
     {
         Storage::disk($file->disk)->delete($file->path);
         $file->delete();
+    }
+
+    /**
+     * Looks up an existing file with identical content already stored
+     * for this purpose + tenant, if any. Deliberately NOT called
+     * automatically from store() — dedup is opt-in per feature. A
+     * feature where the same content genuinely can occupy two different
+     * slots (e.g. onboarding reusing one PDF as two separate documents)
+     * has no reason to reject that; File Manager, where every upload is
+     * its own free-standing entry, does.
+     */
+    public function findDuplicate(UploadedFile $file, string $purpose, ?int $tenantId): ?FileUpload
+    {
+        $hash = hash_file('sha256', $file->getRealPath());
+
+        return FileUpload::where('purpose', $purpose)
+            ->where('tenant_id', $tenantId)
+            ->where('hash', $hash)
+            ->first();
     }
 
     /**

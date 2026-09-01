@@ -17,6 +17,7 @@ class FileUpload extends Model
         'original_name',
         'mime_type',
         'size',
+        'hash',
         'purpose',
         'field',
         'user_id',
