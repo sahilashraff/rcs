@@ -8,6 +8,7 @@ import type {
     VerifyOtp,
     ResendOtp,
     SignInResponse,
+    SignInSuccessResponse,
     SignUpResponse,
     CurrentUserResponse,
 } from '@/@types/auth'
@@ -63,7 +64,7 @@ export async function apiResetPassword<T>(data: ResetPassword) {
 }
 
 export async function apiVerifyOtp(data: VerifyOtp) {
-    return ApiService.fetchDataWithAxios<SignInResponse>({
+    return ApiService.fetchDataWithAxios<SignInSuccessResponse>({
         url: '/otp/verify',
         method: 'post',
         data,
