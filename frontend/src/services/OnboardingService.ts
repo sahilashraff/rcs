@@ -2,6 +2,14 @@ import ApiService from './ApiService'
 
 export type OnboardingStatus = 'draft' | 'submitted' | 'approved' | 'rejected'
 
+export type FileUploadRecord = {
+    id: number
+    original_name: string
+    mime_type: string
+    size: number
+    url: string | null
+}
+
 export type OnboardingRequestRecord = {
     id: number
     tenant_id: number
@@ -34,12 +42,18 @@ export type OnboardingRequestRecord = {
     contact_person_designation: string
     contact_person_email: string
     contact_person_mobile_number: string
-    brand_logo_path: string | null
-    brand_banner_path: string | null
-    incorporation_certificate_path: string | null
-    pan_document_path: string | null
-    gst_document_path: string | null
-    other_document_path: string | null
+    brand_logo_file_id: number | null
+    brand_logo_file: FileUploadRecord | null
+    brand_banner_file_id: number | null
+    brand_banner_file: FileUploadRecord | null
+    incorporation_certificate_file_id: number | null
+    incorporation_certificate_file: FileUploadRecord | null
+    pan_document_file_id: number | null
+    pan_document_file: FileUploadRecord | null
+    gst_document_file_id: number | null
+    gst_document_file: FileUploadRecord | null
+    other_document_file_id: number | null
+    other_document_file: FileUploadRecord | null
     rejection_reason: string | null
     reviewed_by: number | null
     reviewed_at: string | null
@@ -52,12 +66,18 @@ export type OnboardingFormFields = Omit<
     | 'id'
     | 'tenant_id'
     | 'status'
-    | 'brand_logo_path'
-    | 'brand_banner_path'
-    | 'incorporation_certificate_path'
-    | 'pan_document_path'
-    | 'gst_document_path'
-    | 'other_document_path'
+    | 'brand_logo_file_id'
+    | 'brand_logo_file'
+    | 'brand_banner_file_id'
+    | 'brand_banner_file'
+    | 'incorporation_certificate_file_id'
+    | 'incorporation_certificate_file'
+    | 'pan_document_file_id'
+    | 'pan_document_file'
+    | 'gst_document_file_id'
+    | 'gst_document_file'
+    | 'other_document_file_id'
+    | 'other_document_file'
     | 'rejection_reason'
     | 'reviewed_by'
     | 'reviewed_at'

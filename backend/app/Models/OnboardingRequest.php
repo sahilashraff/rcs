@@ -41,12 +41,12 @@ class OnboardingRequest extends Model
         'contact_person_designation',
         'contact_person_email',
         'contact_person_mobile_number',
-        'brand_logo_path',
-        'brand_banner_path',
-        'incorporation_certificate_path',
-        'pan_document_path',
-        'gst_document_path',
-        'other_document_path',
+        'brand_logo_file_id',
+        'brand_banner_file_id',
+        'incorporation_certificate_file_id',
+        'pan_document_file_id',
+        'gst_document_file_id',
+        'other_document_file_id',
         'rejection_reason',
         'reviewed_by',
         'reviewed_at',
@@ -69,5 +69,35 @@ class OnboardingRequest extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function brandLogoFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'brand_logo_file_id');
+    }
+
+    public function brandBannerFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'brand_banner_file_id');
+    }
+
+    public function incorporationCertificateFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'incorporation_certificate_file_id');
+    }
+
+    public function panDocumentFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'pan_document_file_id');
+    }
+
+    public function gstDocumentFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'gst_document_file_id');
+    }
+
+    public function otherDocumentFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'other_document_file_id');
     }
 }

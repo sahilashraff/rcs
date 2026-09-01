@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CarrierAgentController;
 use App\Http\Controllers\Api\CarrierController;
 use App\Http\Controllers\Api\FeatureController;
+use App\Http\Controllers\Api\FileDownloadController;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\SubAccountController;
@@ -32,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::get('/onboarding/mine', [OnboardingController::class, 'mine']);
 
+    Route::get('/files/{fileUpload}/download', FileDownloadController::class);
+
     Route::middleware('is-owner')->group(function () {
         Route::get('/sub-accounts', [SubAccountController::class, 'index']);
         Route::post('/sub-accounts', [SubAccountController::class, 'store']);
@@ -55,8 +58,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/onboarding-requests/{onboardingRequest}', [AdminOnboardingRequestController::class, 'show']);
         Route::post('/admin/onboarding-requests/{onboardingRequest}/approve', [AdminOnboardingRequestController::class, 'approve']);
         Route::post('/admin/onboarding-requests/{onboardingRequest}/reject', [AdminOnboardingRequestController::class, 'reject']);
-        Route::get('/admin/onboarding-requests/{onboardingRequest}/documents/{field}', [AdminOnboardingRequestController::class, 'document']);
         Route::get('/admin/settings', [AdminSettingController::class, 'index']);
         Route::put('/admin/settings', [AdminSettingController::class, 'update']);
+        Route::post('/admin/settings/general', [AdminSettingController::class, 'updateGeneral']);
     });
 });

@@ -47,10 +47,3 @@ export async function apiRejectOnboardingRequest(id: number, rejectionReason: st
     })
 }
 
-export async function apiDownloadOnboardingDocument(id: number, field: string) {
-    return ApiService.fetchDataWithAxios<Blob>({
-        url: `/admin/onboarding-requests/${id}/documents/${field}`,
-        method: 'get',
-        responseType: 'blob',
-    })
-}

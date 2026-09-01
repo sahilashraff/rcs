@@ -130,7 +130,7 @@ const OnboardingForm = ({ initialData, onSubmit }: OnboardingFormProps) => {
     }
 
     const requiredDocsMissing = (['brand_logo', 'brand_banner', 'incorporation_certificate', 'pan_document', 'gst_document'] as const)
-        .some((key) => !files[key] && !initialData?.[`${key}_path`])
+        .some((key) => !files[key] && !initialData?.[`${key}_file_id`])
 
     const onValidSubmit = async (values: OnboardingFormSchema) => {
         if (requiredDocsMissing) {
@@ -310,7 +310,7 @@ const OnboardingForm = ({ initialData, onSubmit }: OnboardingFormProps) => {
                     <>
                         {DOCUMENT_FIELDS.map(({ key, label, accept }) => (
                             <FormItem key={key} label={label}>
-                                {initialData?.[`${key}_path` as keyof OnboardingRequestRecord] && !files[key] && (
+                                {initialData?.[`${key}_file_id` as keyof OnboardingRequestRecord] && !files[key] && (
                                     <div className="text-xs text-gray-500 mb-1">
                                         Already uploaded — choose a file to replace it.
                                     </div>

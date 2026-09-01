@@ -7,7 +7,6 @@ use App\Models\Agent;
 use App\Models\OnboardingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AdminOnboardingRequestController extends Controller
@@ -30,7 +29,10 @@ class AdminOnboardingRequestController extends Controller
 
     public function show(OnboardingRequest $onboardingRequest)
     {
-        $onboardingRequest->load('tenant');
+        $onboardingRequest->load([
+            'tenant', 'brandLogoFile', 'brandBannerFile', 'incorporationCertificateFile',
+            'panDocumentFile', 'gstDocumentFile', 'otherDocumentFile',
+        ]);
 
         return response()->json(['data' => $onboardingRequest]);
     }
@@ -99,20 +101,5 @@ class AdminOnboardingRequestController extends Controller
         $onboardingRequest->save();
 
         return response()->json(['data' => $onboardingRequest]);
-    }
-
-    public function document(OnboardingRequest $onboardingRequest, string $field)
-    {
-        if (! in_array($field, OnboardingController::DOCUMENT_FIELDS, true)) {
-            abort(404);
-        }
-
-        $path = $onboardingRequest->{$field . '_path'};
-
-        if (! $path || ! Storage::disk('local')->exists($path)) {
-            abort(404);
-        }
-
-        return Storage::disk('local')->download($path);
     }
 }

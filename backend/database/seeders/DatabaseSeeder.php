@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Agent;
+use App\Models\AppSetting;
 use App\Models\Carrier;
-use App\Models\Setting;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             Carrier::create($carrier);
         }
 
-        Setting::set('otp_verification_enabled', '0');
+        AppSetting::set('otp_verification_enabled', '0');
 
         Agent::create([
             'tenant_id' => $tenant->id,

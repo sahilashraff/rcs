@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\FileUpload;
 use App\Models\OnboardingRequest;
+use App\Support\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -12,10 +14,10 @@ class OnboardingController extends Controller
 {
     /**
      * The six uploaded-document fields — the single list every validation
-     * rule and storage write here reads from, and that
-     * AdminOnboardingRequestController's document() download endpoint
-     * imports as its field whitelist, so a new document type is only ever
-     * added in one place.
+     * rule and storage write here reads from, so a new document type is
+     * only ever added in one place. Each field's actual file now lives in
+     * the shared FileUpload registry; documents are downloaded through
+     * the generic /files/{fileUpload}/download route, not a bespoke one.
      */
     public const DOCUMENT_FIELDS = [
         'brand_logo',
@@ -31,11 +33,14 @@ class OnboardingController extends Controller
         $tenant = $request->user()->tenant;
 
         return response()->json([
-            'data' => $tenant?->onboardingRequest,
+            'data' => $tenant?->onboardingRequest?->load([
+                'brandLogoFile', 'brandBannerFile', 'incorporationCertificateFile',
+                'panDocumentFile', 'gstDocumentFile', 'otherDocumentFile',
+            ]),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, FileUploadService $fileUploadService)
     {
         $tenant = $request->user()->tenant;
 
@@ -84,11 +89,11 @@ class OnboardingController extends Controller
             'contact_person_designation' => ['required', 'string', 'max:255'],
             'contact_person_email' => ['required', 'email', 'max:255'],
             'contact_person_mobile_number' => ['required', 'string', 'max:20'],
-            'brand_logo' => [$existing?->brand_logo_path ? 'nullable' : 'required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'brand_banner' => [$existing?->brand_banner_path ? 'nullable' : 'required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'incorporation_certificate' => [$existing?->incorporation_certificate_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'pan_document' => [$existing?->pan_document_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'gst_document' => [$existing?->gst_document_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'brand_logo' => [$existing?->brand_logo_file_id ? 'nullable' : 'required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'brand_banner' => [$existing?->brand_banner_file_id ? 'nullable' : 'required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'incorporation_certificate' => [$existing?->incorporation_certificate_file_id ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'pan_document' => [$existing?->pan_document_file_id ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'gst_document' => [$existing?->gst_document_file_id ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'other_document' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ]);
 
@@ -98,12 +103,21 @@ class OnboardingController extends Controller
 
         foreach (self::DOCUMENT_FIELDS as $field) {
             if ($request->hasFile($field)) {
-                $path = $request->file($field)->storeAs(
-                    "onboarding/{$tenant->id}",
-                    $field . '.' . $request->file($field)->extension(),
-                    'local',
+                $old = $onboardingRequest->{$field . '_file_id'}
+                    ? FileUpload::find($onboardingRequest->{$field . '_file_id'})
+                    : null;
+
+                $new = $fileUploadService->replace(
+                    $old,
+                    $request->file($field),
+                    'onboarding_document',
+                    $field,
+                    'private',
+                    $request->user()->id,
+                    $tenant->id,
                 );
-                $onboardingRequest->{$field . '_path'} = $path;
+
+                $onboardingRequest->{$field . '_file_id'} = $new->id;
             }
         }
 

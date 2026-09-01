@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\OtpSender;
 use App\Http\Controllers\Controller;
-use App\Models\Setting;
+use App\Models\AppSetting;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\FeatureAccess;
@@ -34,7 +34,7 @@ class AuthController extends Controller
         if (
             ! $user->is_admin
             && ! $user->phone_verified_at
-            && filter_var(Setting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)
+            && filter_var(AppSetting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)
         ) {
             $this->issueOtp($user);
 
@@ -75,7 +75,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        if (! filter_var(Setting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {
+        if (! filter_var(AppSetting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {
             $token = $user->createToken('spa')->plainTextToken;
 
             return response()->json([

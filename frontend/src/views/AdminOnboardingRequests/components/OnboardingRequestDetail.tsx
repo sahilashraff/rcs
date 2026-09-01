@@ -10,7 +10,7 @@ import RejectDialog from './RejectDialog'
 import AddAgentDialog from './AddAgentDialog'
 import AgentListTable from '@/views/AdminAgents/components/AgentListTable'
 import EditAgentDialog from '@/views/AdminAgents/components/EditAgentDialog'
-import { apiDownloadOnboardingDocument } from '@/services/AdminOnboardingService'
+import { apiDownloadFile } from '@/services/FileService'
 import {
     apiGetAgents,
     apiCreateAgent,
@@ -168,8 +168,8 @@ const OnboardingRequestDetail = ({ request, onBack, onApprove, onReject }: Onboa
         }
     }
 
-    const viewDocument = async (field: string) => {
-        const blob = await apiDownloadOnboardingDocument(request.id, field)
+    const viewDocument = async (fileId: number) => {
+        const blob = await apiDownloadFile(fileId)
         const url = URL.createObjectURL(blob)
         window.open(url, '_blank')
     }
@@ -210,9 +210,9 @@ const OnboardingRequestDetail = ({ request, onBack, onApprove, onReject }: Onboa
                 <h5 className="mb-2">Documents</h5>
                 <div className="flex flex-wrap gap-2">
                     {DOCUMENT_FIELDS.map(([label, field]) => {
-                        const path = request[`${field}_path` as keyof OnboardingRequestDetailType]
+                        const fileId = request[`${field}_file_id` as keyof OnboardingRequestDetailType] as number | null
                         return (
-                            <Button key={field} size="sm" disabled={!path} onClick={() => viewDocument(field)}>
+                            <Button key={field} size="sm" disabled={!fileId} onClick={() => fileId && viewDocument(fileId)}>
                                 {label}
                             </Button>
                         )
