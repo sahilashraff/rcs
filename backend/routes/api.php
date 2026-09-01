@@ -72,5 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/settings/login-auth', [AdminSettingController::class, 'updateLoginAuth']);
         Route::put('/admin/settings/pusher', [AdminSettingController::class, 'updatePusher']);
         Route::put('/admin/settings/ai-provider', [AdminSettingController::class, 'updateAiProvider']);
+        Route::put('/admin/settings/payment', [AdminSettingController::class, 'updatePayment']);
     });
 });

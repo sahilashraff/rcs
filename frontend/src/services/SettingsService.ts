@@ -70,6 +70,23 @@ export type AiProviderSettings = {
     default_model: string
 }
 
+export const PAYMENT_GATEWAY_OPTIONS = [
+    { value: 'stripe', label: 'Stripe' },
+    { value: 'razorpay', label: 'Razorpay' },
+    { value: 'paypal', label: 'PayPal' },
+    { value: 'custom', label: 'Custom' },
+] as const
+
+export type PaymentGateway = (typeof PAYMENT_GATEWAY_OPTIONS)[number]['value']
+
+export type PaymentSettings = {
+    enabled: boolean
+    gateway: PaymentGateway
+    public_key: string
+    secret_key_set: boolean
+    webhook_secret_set: boolean
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
@@ -79,6 +96,7 @@ export type Settings = {
     login_auth: LoginAuthSettings
     pusher: PusherSettings
     ai_provider: AiProviderSettings
+    payment: PaymentSettings
 }
 
 export async function apiGetSettings() {
@@ -207,6 +225,22 @@ export type AiProviderUpdateFields = {
 export async function apiUpdateAiProviderSettings(data: AiProviderUpdateFields) {
     return ApiService.fetchDataWithAxios<{ data: AiProviderSettings }>({
         url: '/admin/settings/ai-provider',
+        method: 'put',
+        data,
+    })
+}
+
+export type PaymentUpdateFields = {
+    enabled: boolean
+    gateway: PaymentGateway
+    public_key?: string
+    secret_key?: string
+    webhook_secret?: string
+}
+
+export async function apiUpdatePaymentSettings(data: PaymentUpdateFields) {
+    return ApiService.fetchDataWithAxios<{ data: PaymentSettings }>({
+        url: '/admin/settings/payment',
         method: 'put',
         data,
     })

@@ -19,6 +19,7 @@ import NotificationSoundSettingsPanel from './components/NotificationSoundSettin
 import LoginAuthSettingsPanel from './components/LoginAuthSettingsPanel'
 import PusherSettingsPanel from './components/PusherSettingsPanel'
 import AiProviderSettingsPanel from './components/AiProviderSettingsPanel'
+import PaymentSettingsPanel from './components/PaymentSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -38,6 +39,7 @@ import {
     PiFingerprintDuotone,
     PiBroadcastDuotone,
     PiSparkleDuotone,
+    PiCreditCardDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
@@ -52,6 +54,7 @@ type SettingsView =
     | 'login_auth'
     | 'pusher'
     | 'ai_provider'
+    | 'payment'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -95,6 +98,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'ai_provider',
         icon: <PiSparkleDuotone className="text-xl" />,
         desc: 'LLM provider & API key',
+    },
+    {
+        label: 'Payment',
+        value: 'payment',
+        icon: <PiCreditCardDuotone className="text-xl" />,
+        desc: 'Billing gateway credentials',
     },
     {
         label: 'Security & Auth',
@@ -316,6 +325,15 @@ const AdminSettings = () => {
                                     aiProvider={settings?.ai_provider}
                                     onUpdated={(ai_provider) =>
                                         setSettings((prev) => (prev ? { ...prev, ai_provider } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'payment' && (
+                                <PaymentSettingsPanel
+                                    payment={settings?.payment}
+                                    onUpdated={(payment) =>
+                                        setSettings((prev) => (prev ? { ...prev, payment } : prev))
                                     }
                                 />
                             )}

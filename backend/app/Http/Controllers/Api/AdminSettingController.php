@@ -25,6 +25,7 @@ class AdminSettingController extends Controller
                 'login_auth' => $this->loginAuthSettings(),
                 'pusher' => $this->pusherSettings(),
                 'ai_provider' => $this->aiProviderSettings(),
+                'payment' => $this->paymentSettings(),
             ],
         ]);
     }
@@ -317,6 +318,43 @@ class AdminSettingController extends Controller
             'provider' => AppSetting::get('ai_provider_provider', 'anthropic'),
             'api_key_set' => (bool) AppSetting::get('ai_provider_api_key'),
             'default_model' => AppSetting::get('ai_provider_default_model', ''),
+        ];
+    }
+
+    public const PAYMENT_GATEWAYS = ['stripe', 'razorpay', 'paypal', 'custom'];
+
+    public function updatePayment(Request $request)
+    {
+        $data = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'gateway' => ['required', Rule::in(self::PAYMENT_GATEWAYS)],
+            'public_key' => ['nullable', 'string', 'max:500'],
+            'secret_key' => ['nullable', 'string', 'max:500'],
+            'webhook_secret' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        AppSetting::set('payment_enabled', $data['enabled'] ? '1' : '0');
+        AppSetting::set('payment_gateway', $data['gateway']);
+        AppSetting::set('payment_public_key', $data['public_key'] ?? '');
+
+        if (! empty($data['secret_key'])) {
+            AppSetting::set('payment_secret_key', $data['secret_key']);
+        }
+        if (! empty($data['webhook_secret'])) {
+            AppSetting::set('payment_webhook_secret', $data['webhook_secret']);
+        }
+
+        return response()->json(['data' => $this->paymentSettings()]);
+    }
+
+    private function paymentSettings(): array
+    {
+        return [
+            'enabled' => filter_var(AppSetting::get('payment_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
+            'gateway' => AppSetting::get('payment_gateway', 'stripe'),
+            'public_key' => AppSetting::get('payment_public_key', ''),
+            'secret_key_set' => (bool) AppSetting::get('payment_secret_key'),
+            'webhook_secret_set' => (bool) AppSetting::get('payment_webhook_secret'),
         ];
     }
 }
