@@ -17,9 +17,15 @@ export type GeneralSettings = {
     [K in GeneralLogoField as `${K}_url`]?: string | null
 }
 
+export type LocalisationSettings = {
+    currency_code: string
+    timezone: string
+}
+
 export type Settings = {
     otp_verification_enabled: boolean
     general: GeneralSettings
+    localisation: LocalisationSettings
 }
 
 export async function apiGetSettings() {
@@ -63,5 +69,13 @@ export async function apiUpdateGeneralSettings(
         url: '/admin/settings/general',
         method: 'post',
         data: formData,
+    })
+}
+
+export async function apiUpdateLocalisationSettings(data: LocalisationSettings) {
+    return ApiService.fetchDataWithAxios<{ data: LocalisationSettings }>({
+        url: '/admin/settings/localisation',
+        method: 'put',
+        data,
     })
 }

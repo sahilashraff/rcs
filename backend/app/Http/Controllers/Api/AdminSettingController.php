@@ -7,7 +7,9 @@ use App\Models\AppSetting;
 use App\Models\FileUpload;
 use App\Support\BrandingSettings;
 use App\Support\FileUploadService;
+use DateTimeZone;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminSettingController extends Controller
 {
@@ -17,6 +19,7 @@ class AdminSettingController extends Controller
             'data' => [
                 'otp_verification_enabled' => filter_var(AppSetting::get('otp_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN),
                 'general' => BrandingSettings::current(),
+                'localisation' => $this->localisationSettings(),
             ],
         ]);
     }
@@ -74,5 +77,26 @@ class AdminSettingController extends Controller
         }
 
         return response()->json(['data' => BrandingSettings::current()]);
+    }
+
+    public function updateLocalisation(Request $request)
+    {
+        $data = $request->validate([
+            'currency_code' => ['required', 'string', 'regex:/^[A-Z]{3}$/'],
+            'timezone' => ['required', 'string', Rule::in(DateTimeZone::listIdentifiers())],
+        ]);
+
+        AppSetting::set('localisation_currency_code', $data['currency_code']);
+        AppSetting::set('localisation_timezone', $data['timezone']);
+
+        return response()->json(['data' => $this->localisationSettings()]);
+    }
+
+    private function localisationSettings(): array
+    {
+        return [
+            'currency_code' => AppSetting::get('localisation_currency_code', 'INR'),
+            'timezone' => AppSetting::get('localisation_timezone', 'Asia/Kolkata'),
+        ];
     }
 }

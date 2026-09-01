@@ -13,6 +13,7 @@ import type { ToggleDrawerRef } from '@/components/shared/ToggleDrawer'
 import { apiGetSettings, apiUpdateSettings } from '@/services/SettingsService'
 import type { Settings } from '@/services/SettingsService'
 import GeneralSettingsPanel from './components/GeneralSettingsPanel'
+import LocalisationSettingsPanel from './components/LocalisationSettingsPanel'
 import {
     PiShieldCheckDuotone,
     PiChatCenteredDotsDuotone,
@@ -26,10 +27,11 @@ import {
     PiLockKeyDuotone,
     PiListBold,
     PiPaintBrushDuotone,
+    PiCoinsDuotone,
 } from 'react-icons/pi'
 import type { ReactNode } from 'react'
 
-type SettingsView = 'security' | 'rcs' | 'general' | 'branding'
+type SettingsView = 'security' | 'rcs' | 'general' | 'branding' | 'localisation'
 
 const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: string }[] = [
     {
@@ -37,6 +39,12 @@ const menuList: { label: string; value: SettingsView; icon: ReactNode; desc: str
         value: 'branding',
         icon: <PiPaintBrushDuotone className="text-xl" />,
         desc: 'Site identity, favicon & logos',
+    },
+    {
+        label: 'Localisation',
+        value: 'localisation',
+        icon: <PiCoinsDuotone className="text-xl" />,
+        desc: 'Currency & timezone',
     },
     {
         label: 'Security & Auth',
@@ -204,6 +212,15 @@ const AdminSettings = () => {
                                     general={settings?.general}
                                     onUpdated={(general) =>
                                         setSettings((prev) => (prev ? { ...prev, general } : prev))
+                                    }
+                                />
+                            )}
+
+                            {currentView === 'localisation' && (
+                                <LocalisationSettingsPanel
+                                    localisation={settings?.localisation}
+                                    onUpdated={(localisation) =>
+                                        setSettings((prev) => (prev ? { ...prev, localisation } : prev))
                                     }
                                 />
                             )}

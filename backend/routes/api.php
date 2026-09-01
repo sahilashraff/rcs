@@ -64,5 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/settings', [AdminSettingController::class, 'index']);
         Route::put('/admin/settings', [AdminSettingController::class, 'update']);
         Route::post('/admin/settings/general', [AdminSettingController::class, 'updateGeneral']);
+        Route::put('/admin/settings/localisation', [AdminSettingController::class, 'updateLocalisation']);
     });
 });
